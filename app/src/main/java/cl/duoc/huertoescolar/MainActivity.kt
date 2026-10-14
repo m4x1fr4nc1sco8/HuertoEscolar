@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import cl.duoc.huertoescolar.ui.navigation.Navegacion
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
 import cl.duoc.huertoescolar.ui.screens.LoginScreen
 import cl.duoc.huertoescolar.ui.screens.SectorFormScreen
@@ -21,11 +22,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HuertoEscolarTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    SectorFormScreen(modifier = Modifier.padding(innerPadding))
-                }
+                Navegacion()
             }
         }
-    }
-}
+                }
+            }
+
+
 

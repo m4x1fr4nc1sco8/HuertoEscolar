@@ -14,14 +14,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +46,33 @@ import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
 import cl.duoc.huertoescolar.util.Validaciones
 
 @Composable
-fun SectorFormScreen(modifier: Modifier = Modifier) {
+@OptIn(ExperimentalMaterial3Api::class)
+fun SectorFormScreen(onVolver: () -> Unit) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                title = { Text("Sectores") },
+                navigationIcon = {
+                    IconButton(onClick = { onVolver() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Volver"
+                        )
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        SectorFormContenido(modifier = Modifier.padding(innerPadding))
+    }
+}
+@Composable
+private fun SectorFormContenido(modifier: Modifier = Modifier) {
     var codigo by remember { mutableStateOf("") }
     var nombre by remember { mutableStateOf("") }
     var ubicacion by remember { mutableStateOf("") }
@@ -171,6 +203,6 @@ fun SectorFormScreen(modifier: Modifier = Modifier) {
 @Composable
 fun SectorFormScreenPreview() {
     HuertoEscolarTheme {
-        SectorFormScreen()
+        SectorFormScreen(onVolver = {})
     }
 }

@@ -1,4 +1,7 @@
 package cl.duoc.huertoescolar.ui.navigation
 
-class Rutas {
+object Rutas {
+    const val LOGIN = "login"
+    const val INICIO = "inicio"
+    const val SECTORES = "sectores"
 }

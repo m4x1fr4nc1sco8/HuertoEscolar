@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,7 +31,17 @@ import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
 import cl.duoc.huertoescolar.util.Validaciones
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(onLoginExitoso: () -> Unit) {
+    Scaffold() { innerPadding ->
+        LoginContenido(
+            onLoginExitoso = onLoginExitoso,
+            modifier = Modifier.padding(innerPadding)
+        )
+    }
+}
+
+@Composable
+private fun LoginContenido(onLoginExitoso: () -> Unit, modifier: Modifier = Modifier) {
     var correo by remember { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
     var errorCorreo by remember { mutableStateOf<String?>(null) }
@@ -102,7 +113,9 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 val rClave = Validaciones.validarClave(clave)
                 errorCorreo = rCorreo.mensaje
                 errorClave = rClave.mensaje
-                mensaje = if (rCorreo.esValido && rClave.esValido) "Datos válidos" else ""
+                val ok = rCorreo.esValido && rClave.esValido
+                mensaje = if (ok) "Datos válidos" else ""
+                if (ok) onLoginExitoso()
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -120,6 +133,6 @@ fun LoginScreen(modifier: Modifier = Modifier) {
 @Composable
 fun LoginScreenPreview() {
     HuertoEscolarTheme {
-        LoginScreen()
+        LoginScreen(onLoginExitoso = {})
     }
 }
