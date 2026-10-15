@@ -29,25 +29,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.R
-import cl.duoc.huertoescolar.model.EstadoSector
 import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
-import cl.duoc.huertoescolar.util.Validaciones
+import cl.duoc.huertoescolar.viewmodel.SectorViewModel
 
-@Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun SectorFormScreen(onVolver: () -> Unit) {
+@Composable
+fun SectorFormScreen(
+    onVolver: () -> Unit,
+    viewModel: SectorViewModel = viewModel()
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -68,30 +67,29 @@ fun SectorFormScreen(onVolver: () -> Unit) {
             )
         }
     ) { innerPadding ->
-        SectorFormContenido(modifier = Modifier.padding(innerPadding))
+        SectorFormContenido(
+            viewModel = viewModel,
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }
+
 @Composable
-private fun SectorFormContenido(modifier: Modifier = Modifier) {
-    var codigo by remember { mutableStateOf("") }
-    var nombre by remember { mutableStateOf("") }
-    var ubicacion by remember { mutableStateOf("") }
-    var enUso by remember { mutableStateOf(false) }
-    var confirma by remember { mutableStateOf(false) }
-
-    var errorCodigo by remember { mutableStateOf<String?>(null) }
-    var errorNombre by remember { mutableStateOf<String?>(null) }
-    var errorUbicacion by remember { mutableStateOf<String?>(null) }
-    var errorConfirma by remember { mutableStateOf<String?>(null) }
-    var mensaje by remember { mutableStateOf("") }
-
+private fun SectorFormContenido(
+    viewModel: SectorViewModel,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(24.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Text("Registrar sector", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text(
+            "Registrar sector",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
         Spacer(Modifier.height(16.dp))
 
         Box(
@@ -106,28 +104,28 @@ private fun SectorFormContenido(modifier: Modifier = Modifier) {
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CampoTexto(
-                valor = codigo,
-                alCambiar = { codigo = it; errorCodigo = null },
+                valor = viewModel.codigo,
+                alCambiar = { viewModel.cambiarCodigo(it) },
                 etiqueta = "Código",
-                error = errorCodigo,
+                error = viewModel.errorCodigo,
                 placeholder = "Ej: S-01",
                 modifier = Modifier.weight(1f)
             )
             CampoTexto(
-                valor = nombre,
-                alCambiar = { nombre = it; errorNombre = null },
+                valor = viewModel.nombre,
+                alCambiar = { viewModel.cambiarNombre(it) },
                 etiqueta = "Nombre",
-                error = errorNombre,
+                error = viewModel.errorNombre,
                 placeholder = "Ej: Huerta de hortalizas",
                 modifier = Modifier.weight(1f)
             )
         }
 
         CampoTexto(
-            valor = ubicacion,
-            alCambiar = { ubicacion = it; errorUbicacion = null },
+            valor = viewModel.ubicacion,
+            alCambiar = { viewModel.cambiarUbicacion(it) },
             etiqueta = "Ubicación en el huerto",
-            error = errorUbicacion,
+            error = viewModel.errorUbicacion,
             placeholder = "Ej: Patio norte",
             modifier = Modifier.fillMaxWidth()
         )
@@ -136,54 +134,38 @@ private fun SectorFormContenido(modifier: Modifier = Modifier) {
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Sector en uso", modifier = Modifier.weight(1f))
-            Switch(checked = enUso, onCheckedChange = { enUso = it })
+            Switch(
+                checked = viewModel.enUso,
+                onCheckedChange = { viewModel.cambiarEnUso(it) }
+            )
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
-                checked = confirma,
-                onCheckedChange = { confirma = it; errorConfirma = null }
+                checked = viewModel.confirma,
+                onCheckedChange = { viewModel.cambiarConfirma(it) }
             )
             Text("Confirmo que los datos son correctos")
         }
-        errorConfirma?.let {
-            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        viewModel.errorConfirma?.let {
+            Text(
+                it,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
 
         Spacer(Modifier.height(16.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(
-                onClick = {
-                    codigo = ""; nombre = ""; ubicacion = ""
-                    enUso = false; confirma = false
-                    errorCodigo = null; errorNombre = null
-                    errorUbicacion = null; errorConfirma = null
-                    mensaje = ""
-                },
+                onClick = { viewModel.limpiar() },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Limpiar")
             }
-
             Button(
-                onClick = {
-                    val rCodigo = Validaciones.validarObligatorio(codigo, "El código")
-                    val rNombre = Validaciones.validarNombre(nombre, "El nombre del sector")
-                    val rUbicacion = Validaciones.validarObligatorio(ubicacion, "La ubicación")
-                    errorCodigo = rCodigo.mensaje
-                    errorNombre = rNombre.mensaje
-                    errorUbicacion = rUbicacion.mensaje
-                    errorConfirma = if (confirma) null else "Debes confirmar los datos"
-
-                    if (rCodigo.esValido && rNombre.esValido && rUbicacion.esValido && confirma) {
-                        val estado = if (enUso) EstadoSector.EN_USO else EstadoSector.DISPONIBLE
-                        println("Sector: $codigo | $nombre | $ubicacion | $estado")
-                        mensaje = "Sector guardado (prueba)"
-                    } else {
-                        mensaje = ""
-                    }
-                },
+                onClick = { viewModel.guardar() },
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(Icons.Default.Check, contentDescription = "Guardar")
@@ -192,9 +174,9 @@ private fun SectorFormContenido(modifier: Modifier = Modifier) {
             }
         }
 
-        if (mensaje.isNotEmpty()) {
+        if (viewModel.mensaje.isNotEmpty()) {
             Spacer(Modifier.height(12.dp))
-            Text(mensaje, color = MaterialTheme.colorScheme.primary)
+            Text(viewModel.mensaje, color = MaterialTheme.colorScheme.primary)
         }
     }
 }

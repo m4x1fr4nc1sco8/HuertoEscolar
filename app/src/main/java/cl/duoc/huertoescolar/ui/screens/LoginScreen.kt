@@ -18,22 +18,23 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
-import cl.duoc.huertoescolar.util.Validaciones
+import cl.duoc.huertoescolar.viewmodel.LoginViewModel
 
 @Composable
-fun LoginScreen(onLoginExitoso: () -> Unit) {
-    Scaffold() { innerPadding ->
+fun LoginScreen(
+    onLoginExitoso: () -> Unit,
+    viewModel: LoginViewModel = viewModel()
+) {
+    Scaffold { innerPadding ->
         LoginContenido(
+            viewModel = viewModel,
             onLoginExitoso = onLoginExitoso,
             modifier = Modifier.padding(innerPadding)
         )
@@ -41,13 +42,11 @@ fun LoginScreen(onLoginExitoso: () -> Unit) {
 }
 
 @Composable
-private fun LoginContenido(onLoginExitoso: () -> Unit, modifier: Modifier = Modifier) {
-    var correo by remember { mutableStateOf("") }
-    var clave by remember { mutableStateOf("") }
-    var errorCorreo by remember { mutableStateOf<String?>(null) }
-    var errorClave by remember { mutableStateOf<String?>(null) }
-    var mensaje by remember { mutableStateOf("") }
-
+private fun LoginContenido(
+    viewModel: LoginViewModel,
+    onLoginExitoso: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center,
@@ -57,15 +56,12 @@ private fun LoginContenido(onLoginExitoso: () -> Unit, modifier: Modifier = Modi
         Spacer(Modifier.height(24.dp))
 
         OutlinedTextField(
-            value = correo,
-            onValueChange = {
-                correo = it
-                errorCorreo = null
-            },
+            value = viewModel.correo,
+            onValueChange = { viewModel.cambiarCorreo(it) },
             label = { Text("Correo") },
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Correo") },
             trailingIcon = {
-                if (errorCorreo != null) {
+                if (viewModel.errorCorreo != null) {
                     Icon(
                         Icons.Default.Warning,
                         contentDescription = "Error",
@@ -73,8 +69,8 @@ private fun LoginContenido(onLoginExitoso: () -> Unit, modifier: Modifier = Modi
                     )
                 }
             },
-            isError = errorCorreo != null,
-            supportingText = { errorCorreo?.let { Text(it) } },
+            isError = viewModel.errorCorreo != null,
+            supportingText = { viewModel.errorCorreo?.let { Text(it) } },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -82,15 +78,12 @@ private fun LoginContenido(onLoginExitoso: () -> Unit, modifier: Modifier = Modi
         Spacer(Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = clave,
-            onValueChange = {
-                clave = it
-                errorClave = null
-            },
+            value = viewModel.clave,
+            onValueChange = { viewModel.cambiarClave(it) },
             label = { Text("Contraseña") },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Contraseña") },
             trailingIcon = {
-                if (errorClave != null) {
+                if (viewModel.errorClave != null) {
                     Icon(
                         Icons.Default.Warning,
                         contentDescription = "Error",
@@ -98,8 +91,8 @@ private fun LoginContenido(onLoginExitoso: () -> Unit, modifier: Modifier = Modi
                     )
                 }
             },
-            isError = errorClave != null,
-            supportingText = { errorClave?.let { Text(it) } },
+            isError = viewModel.errorClave != null,
+            supportingText = { viewModel.errorClave?.let { Text(it) } },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -108,23 +101,10 @@ private fun LoginContenido(onLoginExitoso: () -> Unit, modifier: Modifier = Modi
         Spacer(Modifier.height(16.dp))
 
         Button(
-            onClick = {
-                val rCorreo = Validaciones.validarCorreo(correo)
-                val rClave = Validaciones.validarClave(clave)
-                errorCorreo = rCorreo.mensaje
-                errorClave = rClave.mensaje
-                val ok = rCorreo.esValido && rClave.esValido
-                mensaje = if (ok) "Datos válidos" else ""
-                if (ok) onLoginExitoso()
-            },
+            onClick = { if (viewModel.ingresar()) onLoginExitoso() },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Ingresar")
-        }
-
-        if (mensaje.isNotEmpty()) {
-            Spacer(Modifier.height(12.dp))
-            Text(mensaje, color = MaterialTheme.colorScheme.primary)
         }
     }
 }

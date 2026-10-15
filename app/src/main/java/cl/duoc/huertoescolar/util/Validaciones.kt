@@ -22,12 +22,14 @@ object Validaciones {
         correo.isBlank() -> ResultadoValidacion.error("El correo es obligatorio")
         !REGEX_CORREO.matches(correo.trim()) ->
             ResultadoValidacion.error("Ingresa un correo válido")
+        !correo.trim().endsWith(".cl") ->
+            ResultadoValidacion.error("El correo debe terminar en .cl")
         else -> ResultadoValidacion.OK
     }
 
     fun validarClave(clave: String): ResultadoValidacion = when {
         clave.isBlank() -> ResultadoValidacion.error("La contraseña es obligatoria")
-        clave.length < 6 -> ResultadoValidacion.error("Mínimo 6 caracteres")
+        clave.length < 8 -> ResultadoValidacion.error("Mínimo 8 caracteres")
         else -> ResultadoValidacion.OK
     }
 
