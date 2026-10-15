@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import cl.duoc.huertoescolar.ui.screens.InicioScreen
 import cl.duoc.huertoescolar.ui.screens.LoginScreen
+import cl.duoc.huertoescolar.ui.screens.RegistroScreen
 import cl.duoc.huertoescolar.ui.screens.SectorFormScreen
 
 @Composable
@@ -22,8 +23,12 @@ fun Navegacion() {
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.LOGIN) { inclusive = true }
                     }
-                }
+                },
+                onIrARegistro = { navController.navigate(Rutas.REGISTRO) }
             )
+        }
+        composable(Rutas.REGISTRO) {
+            RegistroScreen(onVolver = { navController.popBackStack() })
         }
         composable(Rutas.INICIO) {
             InicioScreen(

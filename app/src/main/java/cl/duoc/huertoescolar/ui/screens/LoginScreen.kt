@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,12 +31,14 @@ import cl.duoc.huertoescolar.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     onLoginExitoso: () -> Unit,
+    onIrARegistro: () -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
     Scaffold { innerPadding ->
         LoginContenido(
             viewModel = viewModel,
             onLoginExitoso = onLoginExitoso,
+            onIrARegistro = onIrARegistro,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -45,6 +48,7 @@ fun LoginScreen(
 private fun LoginContenido(
     viewModel: LoginViewModel,
     onLoginExitoso: () -> Unit,
+    onIrARegistro: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -106,6 +110,10 @@ private fun LoginContenido(
         ) {
             Text("Ingresar")
         }
+
+        TextButton(onClick = onIrARegistro) {
+            Text("¿No tienes cuenta? Regístrate")
+        }
     }
 }
 
@@ -113,6 +121,6 @@ private fun LoginContenido(
 @Composable
 fun LoginScreenPreview() {
     HuertoEscolarTheme {
-        LoginScreen(onLoginExitoso = {})
+        LoginScreen(onLoginExitoso = {}, onIrARegistro = {})
     }
 }
