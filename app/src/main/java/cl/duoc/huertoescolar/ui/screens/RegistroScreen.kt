@@ -28,10 +28,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
@@ -43,6 +45,8 @@ fun RegistroScreen(
     onVolver: () -> Unit,
     viewModel: RegistroViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -72,57 +76,57 @@ fun RegistroScreen(
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 CampoTexto(
-                    valor = viewModel.nombre,
+                    valor = uiState.nombre,
                     alCambiar = { viewModel.cambiarNombre(it) },
                     etiqueta = "Nombre",
-                    error = viewModel.errorNombre,
+                    error = uiState.errorNombre,
                     icono = Icons.Default.Person,
                     modifier = Modifier.weight(1f)
                 )
                 CampoTexto(
-                    valor = viewModel.apellido,
+                    valor = uiState.apellido,
                     alCambiar = { viewModel.cambiarApellido(it) },
                     etiqueta = "Apellido",
-                    error = viewModel.errorApellido,
+                    error = uiState.errorApellido,
                     modifier = Modifier.weight(1f)
                 )
             }
 
             CampoTexto(
-                valor = viewModel.correo,
+                valor = uiState.correo,
                 alCambiar = { viewModel.cambiarCorreo(it) },
                 etiqueta = "Correo",
-                error = viewModel.errorCorreo,
+                error = uiState.errorCorreo,
                 placeholder = "Ej: nombre@huerto.cl",
                 icono = Icons.Default.Email,
                 modifier = Modifier.fillMaxWidth()
             )
 
             CampoTexto(
-                valor = viewModel.fechaNacimiento,
+                valor = uiState.fechaNacimiento,
                 alCambiar = { viewModel.cambiarFecha(it) },
                 etiqueta = "Fecha de nacimiento",
-                error = viewModel.errorFecha,
+                error = uiState.errorFecha,
                 placeholder = "dd/mm/aaaa",
                 icono = Icons.Default.DateRange,
                 modifier = Modifier.fillMaxWidth()
             )
 
             CampoTexto(
-                valor = viewModel.clave,
+                valor = uiState.clave,
                 alCambiar = { viewModel.cambiarClave(it) },
                 etiqueta = "Contraseña",
-                error = viewModel.errorClave,
+                error = uiState.errorClave,
                 icono = Icons.Default.Lock,
                 esClave = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
             CampoTexto(
-                valor = viewModel.repetirClave,
+                valor = uiState.repetirClave,
                 alCambiar = { viewModel.cambiarRepetir(it) },
                 etiqueta = "Repetir contraseña",
-                error = viewModel.errorRepetir,
+                error = uiState.errorRepetir,
                 icono = Icons.Default.Lock,
                 esClave = true,
                 modifier = Modifier.fillMaxWidth()
@@ -136,19 +140,19 @@ fun RegistroScreen(
                     modifier = Modifier.weight(1f)
                 )
                 Switch(
-                    checked = viewModel.esAdministrador,
+                    checked = uiState.esAdministrador,
                     onCheckedChange = { viewModel.cambiarEsAdministrador(it) }
                 )
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
-                    checked = viewModel.aceptaTerminos,
+                    checked = uiState.aceptaTerminos,
                     onCheckedChange = { viewModel.cambiarTerminos(it) }
                 )
                 Text("Acepto los términos y condiciones")
             }
-            viewModel.errorTerminos?.let {
+            uiState.errorTerminos?.let {
                 Text(
                     it,
                     color = MaterialTheme.colorScheme.error,
@@ -165,9 +169,9 @@ fun RegistroScreen(
                 Text("Registrar")
             }
 
-            if (viewModel.mensaje.isNotEmpty()) {
+            if (uiState.mensaje.isNotEmpty()) {
                 Spacer(Modifier.height(12.dp))
-                Text(viewModel.mensaje, color = MaterialTheme.colorScheme.primary)
+                Text(uiState.mensaje, color = MaterialTheme.colorScheme.primary)
             }
         }
     }
