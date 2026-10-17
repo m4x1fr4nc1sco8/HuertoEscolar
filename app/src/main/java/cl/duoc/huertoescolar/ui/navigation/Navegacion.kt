@@ -8,6 +8,8 @@ import cl.duoc.huertoescolar.ui.screens.InicioScreen
 import cl.duoc.huertoescolar.ui.screens.LoginScreen
 import cl.duoc.huertoescolar.ui.screens.RegistroScreen
 import cl.duoc.huertoescolar.ui.screens.SectorFormScreen
+import cl.duoc.huertoescolar.ui.screens.SectoresScreen
+import cl.duoc.huertoescolar.ui.screens.UsuariosScreen
 
 @Composable
 fun Navegacion() {
@@ -33,6 +35,9 @@ fun Navegacion() {
         composable(Rutas.INICIO) {
             InicioScreen(
                 onIrASectores = { navController.navigate(Rutas.SECTORES) },
+                onIrAListaSectores = { navController.navigate(Rutas.LISTA_SECTORES) },
+                onIrARegistro = { navController.navigate(Rutas.REGISTRO) },
+                onIrAUsuarios = { navController.navigate(Rutas.USUARIOS) },
                 onCerrarSesion = {
                     navController.navigate(Rutas.LOGIN) {
                         popUpTo(Rutas.INICIO) { inclusive = true }
@@ -42,6 +47,15 @@ fun Navegacion() {
         }
         composable(Rutas.SECTORES) {
             SectorFormScreen(onVolver = { navController.popBackStack() })
+        }
+        composable(Rutas.LISTA_SECTORES) {
+            SectoresScreen(
+                onVolver = { navController.popBackStack() },
+                onNuevoSector = { navController.navigate(Rutas.SECTORES) }
+            )
+        }
+        composable(Rutas.USUARIOS) {
+            UsuariosScreen(onVolver = { navController.popBackStack() })
         }
     }
 }

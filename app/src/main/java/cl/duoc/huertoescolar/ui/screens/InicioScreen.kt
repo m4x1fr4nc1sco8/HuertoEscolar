@@ -26,6 +26,9 @@ import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
 @Composable
 fun InicioScreen(
     onIrASectores: () -> Unit,
+    onIrAListaSectores: () -> Unit,
+    onIrARegistro: () -> Unit,
+    onIrAUsuarios: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
     Scaffold(
@@ -53,6 +56,18 @@ fun InicioScreen(
                 Text("Registrar sector")
             }
             Spacer(Modifier.height(8.dp))
+            Button(onClick = onIrAListaSectores, modifier = Modifier.fillMaxWidth()) {
+                Text("Sectores registrados")
+            }
+            Spacer(Modifier.height(8.dp))
+            Button(onClick = onIrARegistro, modifier = Modifier.fillMaxWidth()) {
+                Text("Registrar usuario")
+            }
+            Spacer(Modifier.height(8.dp))
+            Button(onClick = onIrAUsuarios, modifier = Modifier.fillMaxWidth()) {
+                Text("Usuarios registrados")
+            }
+            Spacer(Modifier.height(8.dp))
             OutlinedButton(onClick = onCerrarSesion, modifier = Modifier.fillMaxWidth()) {
                 Text("Cerrar sesión")
             }
@@ -64,6 +79,12 @@ fun InicioScreen(
 @Composable
 fun InicioScreenPreview() {
     HuertoEscolarTheme {
-        InicioScreen(onIrASectores = {}, onCerrarSesion = {})
+        InicioScreen(
+            onIrASectores = {},
+            onIrAListaSectores = {},
+            onIrARegistro = {},
+            onIrAUsuarios = {},
+            onCerrarSesion = {}
+        )
     }
 }

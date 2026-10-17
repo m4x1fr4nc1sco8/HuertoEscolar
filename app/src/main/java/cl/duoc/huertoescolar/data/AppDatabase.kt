@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.room3.Database
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
+import cl.duoc.huertoescolar.model.Sector
 import cl.duoc.huertoescolar.model.Usuario
 
-@Database(entities = [Usuario::class], version = 1)
+@Database(entities = [Usuario::class, Sector::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun usuarioDao(): UsuarioDao
+    abstract fun sectorDao(): SectorDao
 
     companion object {
 

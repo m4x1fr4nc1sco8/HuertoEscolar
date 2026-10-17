@@ -6,4 +6,8 @@ object Rutas {
     const val SECTORES = "sectores"
 
     const val REGISTRO = "registro"
+
+    const val USUARIOS = "usuarios"
+
+    const val LISTA_SECTORES = "lista_sectores"
 }

@@ -29,16 +29,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.R
 import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
+import cl.duoc.huertoescolar.viewmodel.SectorUiState
 import cl.duoc.huertoescolar.viewmodel.SectorViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,6 +50,8 @@ fun SectorFormScreen(
     onVolver: () -> Unit,
     viewModel: SectorViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -68,6 +73,7 @@ fun SectorFormScreen(
         }
     ) { innerPadding ->
         SectorFormContenido(
+            uiState = uiState,
             viewModel = viewModel,
             modifier = Modifier.padding(innerPadding)
         )
@@ -76,6 +82,7 @@ fun SectorFormScreen(
 
 @Composable
 private fun SectorFormContenido(
+    uiState: SectorUiState,
     viewModel: SectorViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -104,28 +111,28 @@ private fun SectorFormContenido(
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CampoTexto(
-                valor = viewModel.codigo,
+                valor = uiState.codigo,
                 alCambiar = { viewModel.cambiarCodigo(it) },
                 etiqueta = "Código",
-                error = viewModel.errorCodigo,
+                error = uiState.errorCodigo,
                 placeholder = "Ej: S-01",
                 modifier = Modifier.weight(1f)
             )
             CampoTexto(
-                valor = viewModel.nombre,
+                valor = uiState.nombre,
                 alCambiar = { viewModel.cambiarNombre(it) },
                 etiqueta = "Nombre",
-                error = viewModel.errorNombre,
+                error = uiState.errorNombre,
                 placeholder = "Ej: Huerta de hortalizas",
                 modifier = Modifier.weight(1f)
             )
         }
 
         CampoTexto(
-            valor = viewModel.ubicacion,
+            valor = uiState.ubicacion,
             alCambiar = { viewModel.cambiarUbicacion(it) },
             etiqueta = "Ubicación en el huerto",
-            error = viewModel.errorUbicacion,
+            error = uiState.errorUbicacion,
             placeholder = "Ej: Patio norte",
             modifier = Modifier.fillMaxWidth()
         )
@@ -135,19 +142,19 @@ private fun SectorFormContenido(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Sector en uso", modifier = Modifier.weight(1f))
             Switch(
-                checked = viewModel.enUso,
+                checked = uiState.enUso,
                 onCheckedChange = { viewModel.cambiarEnUso(it) }
             )
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
-                checked = viewModel.confirma,
+                checked = uiState.confirma,
                 onCheckedChange = { viewModel.cambiarConfirma(it) }
             )
             Text("Confirmo que los datos son correctos")
         }
-        viewModel.errorConfirma?.let {
+        uiState.errorConfirma?.let {
             Text(
                 it,
                 color = MaterialTheme.colorScheme.error,
@@ -174,9 +181,9 @@ private fun SectorFormContenido(
             }
         }
 
-        if (viewModel.mensaje.isNotEmpty()) {
+        if (uiState.mensaje.isNotEmpty()) {
             Spacer(Modifier.height(12.dp))
-            Text(viewModel.mensaje, color = MaterialTheme.colorScheme.primary)
+            Text(uiState.mensaje, color = MaterialTheme.colorScheme.primary)
         }
     }
 }
