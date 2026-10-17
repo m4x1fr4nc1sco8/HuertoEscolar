@@ -1,6 +1,7 @@
 package cl.duoc.huertoescolar.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import cl.duoc.huertoescolar.data.AppDatabase
@@ -8,14 +9,17 @@ import cl.duoc.huertoescolar.data.SectorRepository
 import cl.duoc.huertoescolar.model.EstadoSector
 import cl.duoc.huertoescolar.model.Sector
 import cl.duoc.huertoescolar.util.Validaciones
+import cl.duoc.huertoescolar.util.guardarFotoPermanente
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SectorViewModel(
     application: Application
@@ -47,6 +51,14 @@ class SectorViewModel(
         _uiState.update { it.copy(confirma = valor, errorConfirma = null) }
     }
 
+    fun cambiarFoto(uri: String?) {
+        _uiState.update { it.copy(fotoUri = uri) }
+    }
+
+    fun quitarFoto() {
+        _uiState.update { it.copy(fotoUri = null) }
+    }
+
     fun limpiar() {
         _uiState.value = SectorUiState()
     }
@@ -76,15 +88,24 @@ class SectorViewModel(
                 if (estado.enUso) EstadoSector.EN_USO else EstadoSector.DISPONIBLE
             val fecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
 
-            val sector = Sector(
-                codigo = estado.codigo.trim(),
-                nombre = estado.nombre.trim(),
-                ubicacion = estado.ubicacion.trim(),
-                estado = estadoSector.name,
-                fechaCreacion = fecha
-            )
-
             viewModelScope.launch {
+                val rutaFoto = estado.fotoUri?.let { temporal ->
+                    withContext(Dispatchers.IO) {
+                        guardarFotoPermanente(
+                            getApplication<Application>(),
+                            Uri.parse(temporal)
+                        )
+                    }
+                }
+
+                val sector = Sector(
+                    codigo = estado.codigo.trim(),
+                    nombre = estado.nombre.trim(),
+                    ubicacion = estado.ubicacion.trim(),
+                    estado = estadoSector.name,
+                    fechaCreacion = fecha,
+                    fotoUri = rutaFoto
+                )
                 repository.guardar(sector)
                 _uiState.value = SectorUiState(mensaje = "Sector guardado correctamente")
             }

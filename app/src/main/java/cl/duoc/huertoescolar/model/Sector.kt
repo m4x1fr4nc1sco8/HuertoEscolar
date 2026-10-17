@@ -11,5 +11,6 @@ data class Sector(
     val nombre: String,
     val ubicacion: String,
     val estado: String,
-    val fechaCreacion: String
+    val fechaCreacion: String,
+    val fotoUri: String? = null
 )

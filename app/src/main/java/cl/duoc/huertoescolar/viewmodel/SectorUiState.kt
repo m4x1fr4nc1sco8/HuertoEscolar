@@ -12,5 +12,6 @@ data class SectorUiState(
     val errorUbicacion: String? = null,
     val errorConfirma: String? = null,
 
-    val mensaje: String = ""
+    val mensaje: String = "",
+    val fotoUri: String? = null
 )
