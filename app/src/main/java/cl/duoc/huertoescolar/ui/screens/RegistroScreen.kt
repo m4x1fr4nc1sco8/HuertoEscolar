@@ -38,7 +38,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
 import cl.duoc.huertoescolar.viewmodel.RegistroViewModel
-
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistroScreen(
@@ -169,9 +171,15 @@ fun RegistroScreen(
                 Text("Registrar")
             }
 
-            if (uiState.mensaje.isNotEmpty()) {
-                Spacer(Modifier.height(12.dp))
-                Text(uiState.mensaje, color = MaterialTheme.colorScheme.primary)
+            AnimatedVisibility(
+                visible = uiState.mensaje.isNotEmpty(),
+                enter = fadeIn() + expandVertically()
+            ) {
+                Text(
+                    text = uiState.mensaje,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
             }
         }
     }

@@ -10,6 +10,10 @@ import cl.duoc.huertoescolar.ui.screens.RegistroScreen
 import cl.duoc.huertoescolar.ui.screens.SectorFormScreen
 import cl.duoc.huertoescolar.ui.screens.SectoresScreen
 import cl.duoc.huertoescolar.ui.screens.UsuariosScreen
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 
 @Composable
 fun Navegacion() {
@@ -17,7 +21,19 @@ fun Navegacion() {
 
     NavHost(
         navController = navController,
-        startDestination = Rutas.LOGIN
+        startDestination = Rutas.LOGIN,
+        enterTransition = {
+            slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+        },
+        exitTransition = {
+            slideOutHorizontally(targetOffsetX = { -it / 3 }) + fadeOut()
+        },
+        popEnterTransition = {
+            slideInHorizontally(initialOffsetX = { -it / 3 }) + fadeIn()
+        },
+        popExitTransition = {
+            slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
+        }
     ) {
         composable(Rutas.LOGIN) {
             LoginScreen(

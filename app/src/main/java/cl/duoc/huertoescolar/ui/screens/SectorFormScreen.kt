@@ -285,9 +285,15 @@ private fun SectorFormContenido(
             }
         }
 
-        if (uiState.mensaje.isNotEmpty()) {
-            Spacer(Modifier.height(12.dp))
-            Text(uiState.mensaje, color = MaterialTheme.colorScheme.primary)
+        AnimatedVisibility(
+            visible = uiState.mensaje.isNotEmpty(),
+            enter = fadeIn() + expandVertically()
+        ) {
+            Text(
+                text = uiState.mensaje,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 12.dp)
+            )
         }
     }
 }

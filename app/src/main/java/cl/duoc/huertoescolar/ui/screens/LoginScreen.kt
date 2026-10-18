@@ -27,6 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
 import cl.duoc.huertoescolar.viewmodel.LoginViewModel
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.runtime.remember
 
 @Composable
 fun LoginScreen(
@@ -51,13 +57,23 @@ private fun LoginContenido(
     onIrARegistro: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val estadoTitulo = remember { MutableTransitionState(false).apply { targetState = true } }
+
     Column(
         modifier = modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Huerto Escolar", style = MaterialTheme.typography.headlineMedium)
+        AnimatedVisibility(
+            visibleState = estadoTitulo,
+            enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { -it }
+        ) {
+            Text("Huerto Escolar", style = MaterialTheme.typography.headlineMedium)
+        }
+
         Spacer(Modifier.height(24.dp))
+
+        // ...el resto de los campos y botones queda igual
 
         OutlinedTextField(
             value = viewModel.correo,

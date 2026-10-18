@@ -105,7 +105,7 @@ fun SectoresScreen(
             ) {
                 items(sectores, key = { it.id }) { sector ->
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().animateItem(),
                         colors = CardDefaults.cardColors(
                             containerColor = colorEstado(sector.estado),
                             contentColor = Color.Black

@@ -79,7 +79,7 @@ fun UsuariosScreen(
                         else Color(0xFFEEEEEE)
 
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().animateItem(),
                         colors = CardDefaults.cardColors(
                             containerColor = colorTarjeta,
                             contentColor = Color.Black
