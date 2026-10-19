@@ -4,9 +4,8 @@
 
 ---
 
-## 👥 Integrantes del Equipo
-* **Estudiante 1:** [Nombre y Apellido]
-* **Estudiante 2:** [Nombre y Apellido]
+## Integrantes del Equipo
+* **Estudiante 1:** [Maximiliano Araos]
 * **Asignatura:** Desarrollo de Aplicaciones Móviles (DSY1105)
 * **Institución:** Duoc UC
 
