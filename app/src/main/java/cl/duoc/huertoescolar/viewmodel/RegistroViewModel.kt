@@ -56,15 +56,18 @@ class RegistroViewModel(
         _uiState.update { it.copy(aceptaTerminos = valor, errorTerminos = null) }
     }
 
-    fun registrar() {
+    fun registrar(permitirAdministrador: Boolean) {
         val estado = _uiState.value
+        val esAdministrador = permitirAdministrador && estado.esAdministrador
 
         val rNombre = Validaciones.validarNombre(estado.nombre, "El nombre")
         val rApellido = Validaciones.validarNombre(estado.apellido, "El apellido")
         val rCorreo = Validaciones.validarCorreo(estado.correo)
         val rFecha = Validaciones.validarFechaNacimiento(
-            estado.fechaNacimiento, estado.esAdministrador
+            estado.fechaNacimiento,
+            esAdministrador
         )
+
         val rClave = Validaciones.validarClave(estado.clave)
         val rRepetir = Validaciones.validarClavesIguales(estado.clave, estado.repetirClave)
 
@@ -86,7 +89,7 @@ class RegistroViewModel(
                 rRepetir.esValido && estado.aceptaTerminos
 
         if (formularioValido) {
-            val tipo = if (estado.esAdministrador) Rol.ADMINISTRADOR else Rol.ESTUDIANTE
+            val tipo = if (esAdministrador) Rol.ADMINISTRADOR else Rol.ESTUDIANTE
             val usuario = Usuario(
                 nombre = estado.nombre.trim(),
                 apellido = estado.apellido.trim(),

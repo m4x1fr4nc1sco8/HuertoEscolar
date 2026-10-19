@@ -1,41 +1,75 @@
 package cl.duoc.huertoescolar.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import cl.duoc.huertoescolar.data.AppDatabase
+import cl.duoc.huertoescolar.data.SesionActual
+import cl.duoc.huertoescolar.data.UsuarioRepository
 import cl.duoc.huertoescolar.util.Validaciones
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    application: Application
+) : AndroidViewModel(application) {
 
-    // Variables
-    var correo by mutableStateOf("")
-        private set
-    var clave by mutableStateOf("")
-        private set
+    private val database = AppDatabase.getInstance(application)
+    private val repository = UsuarioRepository(database.usuarioDao())
 
-    // Estados de error
-    var errorCorreo by mutableStateOf<String?>(null)
-        private set
-    var errorClave by mutableStateOf<String?>(null)
-        private set
+    private val _uiState = MutableStateFlow(LoginUiState())
+    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            repository.sembrarCuentasDePrueba()
+        }
+    }
 
     fun cambiarCorreo(valor: String) {
-        correo = valor
-        errorCorreo = null
+        _uiState.update { it.copy(correo = valor, errorCorreo = null, errorGeneral = null) }
     }
 
     fun cambiarClave(valor: String) {
-        clave = valor
-        errorClave = null
+        _uiState.update { it.copy(clave = valor, errorClave = null, errorGeneral = null) }
     }
 
-    // Acción del formulario: devuelve true si los datos son válidos
-    fun ingresar(): Boolean {
-        val rCorreo = Validaciones.validarCorreo(correo)
-        val rClave = Validaciones.validarClave(clave)
-        errorCorreo = rCorreo.mensaje
-        errorClave = rClave.mensaje
-        return rCorreo.esValido && rClave.esValido
+    fun ingresar(onExitoso: () -> Unit) {
+        val estado = _uiState.value
+
+        val rCorreo = Validaciones.validarCorreo(estado.correo)
+        val rClave = Validaciones.validarClave(estado.clave)
+
+        _uiState.update {
+            it.copy(
+                errorCorreo = rCorreo.mensaje,
+                errorClave = rClave.mensaje,
+                errorGeneral = null
+            )
+        }
+
+        if (!rCorreo.esValido || !rClave.esValido) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(cargando = true) }
+
+            val usuario = repository.buscarPorCorreo(estado.correo.trim())
+
+            if (usuario != null && usuario.clave == estado.clave) {
+                SesionActual.iniciar(usuario)
+                _uiState.value = LoginUiState()
+                onExitoso()
+            } else {
+                _uiState.update {
+                    it.copy(
+                        cargando = false,
+                        errorGeneral = "Correo o contraseña incorrectos"
+                    )
+                }
+            }
+        }
     }
 }

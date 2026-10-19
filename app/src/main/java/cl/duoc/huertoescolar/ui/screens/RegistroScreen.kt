@@ -45,6 +45,7 @@ import androidx.compose.animation.fadeIn
 @Composable
 fun RegistroScreen(
     onVolver: () -> Unit,
+    puedeElegirPerfil: Boolean,
     viewModel: RegistroViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -136,15 +137,17 @@ fun RegistroScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    "Perfil administrador (docente o tallerista)",
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = uiState.esAdministrador,
-                    onCheckedChange = { viewModel.cambiarEsAdministrador(it) }
-                )
+            if (puedeElegirPerfil) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "Perfil administrador (docente o tallerista)",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = uiState.esAdministrador,
+                        onCheckedChange = { viewModel.cambiarEsAdministrador(it) }
+                    )
+                }
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -165,7 +168,7 @@ fun RegistroScreen(
             Spacer(Modifier.height(16.dp))
 
             Button(
-                onClick = { viewModel.registrar() },
+                onClick = { viewModel.registrar(permitirAdministrador = puedeElegirPerfil) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Registrar")
@@ -189,6 +192,6 @@ fun RegistroScreen(
 @Composable
 fun RegistroScreenPreview() {
     HuertoEscolarTheme {
-        RegistroScreen(onVolver = {})
+        RegistroScreen(onVolver = {}, puedeElegirPerfil = false)
     }
 }

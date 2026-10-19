@@ -1,5 +1,10 @@
 package cl.duoc.huertoescolar.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,20 +24,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
+import cl.duoc.huertoescolar.viewmodel.LoginUiState
 import cl.duoc.huertoescolar.viewmodel.LoginViewModel
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
-import androidx.compose.runtime.remember
 
 @Composable
 fun LoginScreen(
@@ -40,8 +43,11 @@ fun LoginScreen(
     onIrARegistro: () -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold { innerPadding ->
         LoginContenido(
+            uiState = uiState,
             viewModel = viewModel,
             onLoginExitoso = onLoginExitoso,
             onIrARegistro = onIrARegistro,
@@ -52,6 +58,7 @@ fun LoginScreen(
 
 @Composable
 private fun LoginContenido(
+    uiState: LoginUiState,
     viewModel: LoginViewModel,
     onLoginExitoso: () -> Unit,
     onIrARegistro: () -> Unit,
@@ -73,15 +80,13 @@ private fun LoginContenido(
 
         Spacer(Modifier.height(24.dp))
 
-        // ...el resto de los campos y botones queda igual
-
         OutlinedTextField(
-            value = viewModel.correo,
+            value = uiState.correo,
             onValueChange = { viewModel.cambiarCorreo(it) },
             label = { Text("Correo") },
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Correo") },
             trailingIcon = {
-                if (viewModel.errorCorreo != null) {
+                if (uiState.errorCorreo != null) {
                     Icon(
                         Icons.Default.Warning,
                         contentDescription = "Error",
@@ -89,8 +94,8 @@ private fun LoginContenido(
                     )
                 }
             },
-            isError = viewModel.errorCorreo != null,
-            supportingText = { viewModel.errorCorreo?.let { Text(it) } },
+            isError = uiState.errorCorreo != null,
+            supportingText = { uiState.errorCorreo?.let { Text(it) } },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -98,12 +103,12 @@ private fun LoginContenido(
         Spacer(Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = viewModel.clave,
+            value = uiState.clave,
             onValueChange = { viewModel.cambiarClave(it) },
             label = { Text("Contraseña") },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Contraseña") },
             trailingIcon = {
-                if (viewModel.errorClave != null) {
+                if (uiState.errorClave != null) {
                     Icon(
                         Icons.Default.Warning,
                         contentDescription = "Error",
@@ -111,20 +116,30 @@ private fun LoginContenido(
                     )
                 }
             },
-            isError = viewModel.errorClave != null,
-            supportingText = { viewModel.errorClave?.let { Text(it) } },
+            isError = uiState.errorClave != null,
+            supportingText = { uiState.errorClave?.let { Text(it) } },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
 
+        AnimatedVisibility(visible = uiState.errorGeneral != null) {
+            Text(
+                text = uiState.errorGeneral ?: "",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
         Spacer(Modifier.height(16.dp))
 
         Button(
-            onClick = { if (viewModel.ingresar()) onLoginExitoso() },
+            onClick = { viewModel.ingresar(onLoginExitoso) },
+            enabled = !uiState.cargando,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Ingresar")
+            Text(if (uiState.cargando) "Ingresando..." else "Ingresar")
         }
 
         TextButton(onClick = onIrARegistro) {

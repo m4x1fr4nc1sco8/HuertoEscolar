@@ -25,6 +25,8 @@ import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
+    nombreUsuario: String,
+    esAdministrador: Boolean,
     onIrASectores: () -> Unit,
     onIrAListaSectores: () -> Unit,
     onIrARegistro: () -> Unit,
@@ -50,24 +52,37 @@ fun InicioScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Panel de inicio", style = MaterialTheme.typography.headlineSmall)
+            Text("Hola, $nombreUsuario", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = if (esAdministrador) "Perfil administrador" else "Perfil estudiante",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
             Spacer(Modifier.height(24.dp))
-            Button(onClick = onIrASectores, modifier = Modifier.fillMaxWidth()) {
-                Text("Registrar sector")
+
+            if (esAdministrador) {
+                Button(onClick = onIrASectores, modifier = Modifier.fillMaxWidth()) {
+                    Text("Registrar sector")
+                }
+                Spacer(Modifier.height(8.dp))
             }
-            Spacer(Modifier.height(8.dp))
+
             Button(onClick = onIrAListaSectores, modifier = Modifier.fillMaxWidth()) {
                 Text("Sectores registrados")
             }
             Spacer(Modifier.height(8.dp))
-            Button(onClick = onIrARegistro, modifier = Modifier.fillMaxWidth()) {
-                Text("Registrar usuario")
+
+            if (esAdministrador) {
+                Button(onClick = onIrARegistro, modifier = Modifier.fillMaxWidth()) {
+                    Text("Registrar usuario")
+                }
+                Spacer(Modifier.height(8.dp))
+                Button(onClick = onIrAUsuarios, modifier = Modifier.fillMaxWidth()) {
+                    Text("Usuarios registrados")
+                }
+                Spacer(Modifier.height(8.dp))
             }
-            Spacer(Modifier.height(8.dp))
-            Button(onClick = onIrAUsuarios, modifier = Modifier.fillMaxWidth()) {
-                Text("Usuarios registrados")
-            }
-            Spacer(Modifier.height(8.dp))
+
             OutlinedButton(onClick = onCerrarSesion, modifier = Modifier.fillMaxWidth()) {
                 Text("Cerrar sesión")
             }
@@ -80,6 +95,8 @@ fun InicioScreen(
 fun InicioScreenPreview() {
     HuertoEscolarTheme {
         InicioScreen(
+            nombreUsuario = "Camila",
+            esAdministrador = true,
             onIrASectores = {},
             onIrAListaSectores = {},
             onIrARegistro = {},

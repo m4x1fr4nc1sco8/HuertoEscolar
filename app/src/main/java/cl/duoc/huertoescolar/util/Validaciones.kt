@@ -61,6 +61,8 @@ object Validaciones {
             nacimiento.after(hoy) -> ResultadoValidacion.error("La fecha no puede ser futura")
             requiereMayorDeEdad && calcularEdad(nacimiento, hoy) < 18 ->
                 ResultadoValidacion.error("El perfil administrador requiere ser mayor de 18 años")
+            !requiereMayorDeEdad && calcularEdad(nacimiento, hoy) < 4 ->
+                ResultadoValidacion.error("El perfil estudiante requiere tener al menos 4 años")
             else -> ResultadoValidacion.OK
         }
     }

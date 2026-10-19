@@ -61,6 +61,7 @@ private fun colorEstado(estado: String): Color = when (estado) {
 fun SectoresScreen(
     onVolver: () -> Unit,
     onNuevoSector: () -> Unit,
+    puedeCrear: Boolean,
     viewModel: SectoresViewModel = viewModel()
 ) {
     val sectores by viewModel.sectores.collectAsStateWithLifecycle()
@@ -85,8 +86,10 @@ fun SectoresScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onNuevoSector) {
-                Icon(Icons.Default.Add, contentDescription = "Nuevo sector")
+            if (puedeCrear) {
+                FloatingActionButton(onClick = onNuevoSector) {
+                    Icon(Icons.Default.Add, contentDescription = "Nuevo sector")
+                }
             }
         }
     ) { innerPadding ->
