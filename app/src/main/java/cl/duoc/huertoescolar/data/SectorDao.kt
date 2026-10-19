@@ -14,4 +14,7 @@ interface SectorDao {
 
     @Query("SELECT * FROM sectores ORDER BY id DESC")
     fun obtenerSectores(): Flow<List<Sector>>
+
+    @Query("SELECT COUNT(*) FROM sectores WHERE LOWER(codigo) = LOWER(:codigo)")
+    suspend fun contarPorCodigo(codigo: String): Int
 }

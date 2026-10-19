@@ -29,6 +29,7 @@ fun InicioScreen(
     esAdministrador: Boolean,
     onIrASectores: () -> Unit,
     onIrAListaSectores: () -> Unit,
+    onIrACultivoForm: () -> Unit,
     onIrARegistro: () -> Unit,
     onIrAUsuarios: () -> Unit,
     onCerrarSesion: () -> Unit
@@ -73,6 +74,13 @@ fun InicioScreen(
             Spacer(Modifier.height(8.dp))
 
             if (esAdministrador) {
+                Button(onClick = onIrACultivoForm, modifier = Modifier.fillMaxWidth()) {
+                    Text("Registrar cultivo")
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+
+            if (esAdministrador) {
                 Button(onClick = onIrARegistro, modifier = Modifier.fillMaxWidth()) {
                     Text("Registrar usuario")
                 }
@@ -99,6 +107,7 @@ fun InicioScreenPreview() {
             esAdministrador = true,
             onIrASectores = {},
             onIrAListaSectores = {},
+            onIrACultivoForm = {},
             onIrARegistro = {},
             onIrAUsuarios = {},
             onCerrarSesion = {}

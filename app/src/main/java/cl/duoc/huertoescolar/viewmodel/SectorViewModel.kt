@@ -89,6 +89,12 @@ class SectorViewModel(
             val fecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
 
             viewModelScope.launch {
+                if (repository.existeCodigo(estado.codigo.trim())) {
+                    _uiState.update {
+                        it.copy(errorCodigo = "Ya existe un sector con ese código")
+                    }
+                    return@launch
+                }
                 val rutaFoto = estado.fotoUri?.let { temporal ->
                     withContext(Dispatchers.IO) {
                         guardarFotoPermanente(

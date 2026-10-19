@@ -10,4 +10,6 @@ object Rutas {
     const val USUARIOS = "usuarios"
 
     const val LISTA_SECTORES = "lista_sectores"
+
+    const val CULTIVO_FORM = "cultivo_form"
 }

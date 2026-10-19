@@ -51,6 +51,21 @@ object Validaciones {
         else -> ResultadoValidacion.OK
     }
 
+    fun validarCosechaPosterior(siembra: String, cosecha: String): ResultadoValidacion {
+        val base = validarFecha(cosecha, "La fecha de cosecha")
+        if (!base.esValido) return base
+
+        val fechaSiembra = parsearFecha(siembra.trim()) ?: return ResultadoValidacion.OK
+        val fechaCosecha = parsearFecha(cosecha.trim())
+            ?: return ResultadoValidacion.error("La fecha no existe")
+
+        return if (!fechaCosecha.after(fechaSiembra)) {
+            ResultadoValidacion.error("La cosecha debe ser posterior a la siembra")
+        } else {
+            ResultadoValidacion.OK
+        }
+    }
+
     fun validarFechaNacimiento(texto: String, requiereMayorDeEdad: Boolean): ResultadoValidacion {
         val base = validarFecha(texto, "La fecha de nacimiento")
         if (!base.esValido) return base

@@ -13,4 +13,8 @@ class SectorRepository(
     fun obtenerSectores(): Flow<List<Sector>> {
         return sectorDao.obtenerSectores()
     }
+
+    suspend fun existeCodigo(codigo: String): Boolean {
+        return sectorDao.contarPorCodigo(codigo) > 0
+    }
 }

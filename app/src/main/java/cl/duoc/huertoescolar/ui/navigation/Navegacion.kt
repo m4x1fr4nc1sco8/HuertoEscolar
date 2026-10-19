@@ -19,6 +19,8 @@ import cl.duoc.huertoescolar.ui.screens.RegistroScreen
 import cl.duoc.huertoescolar.ui.screens.SectorFormScreen
 import cl.duoc.huertoescolar.ui.screens.SectoresScreen
 import cl.duoc.huertoescolar.ui.screens.UsuariosScreen
+import cl.duoc.huertoescolar.ui.screens.CultivoFormScreen
+
 
 @Composable
 fun Navegacion() {
@@ -64,6 +66,7 @@ fun Navegacion() {
                 esAdministrador = esAdministrador,
                 onIrASectores = { navController.navigate(Rutas.SECTORES) },
                 onIrAListaSectores = { navController.navigate(Rutas.LISTA_SECTORES) },
+                onIrACultivoForm = { navController.navigate(Rutas.CULTIVO_FORM) },
                 onIrARegistro = { navController.navigate(Rutas.REGISTRO) },
                 onIrAUsuarios = { navController.navigate(Rutas.USUARIOS) },
                 onCerrarSesion = {
@@ -91,6 +94,14 @@ fun Navegacion() {
         composable(Rutas.USUARIOS) {
             if (esAdministrador) {
                 UsuariosScreen(onVolver = { navController.popBackStack() })
+            } else {
+                AccesoDenegadoScreen(onVolver = { navController.popBackStack() })
+            }
+        }
+
+        composable(Rutas.CULTIVO_FORM) {
+            if (esAdministrador) {
+                CultivoFormScreen(onVolver = { navController.popBackStack() })
             } else {
                 AccesoDenegadoScreen(onVolver = { navController.popBackStack() })
             }
