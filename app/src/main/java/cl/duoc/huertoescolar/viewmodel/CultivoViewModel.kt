@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import cl.duoc.huertoescolar.data.AppDatabase
 import cl.duoc.huertoescolar.data.CultivoRepository
 import cl.duoc.huertoescolar.data.SectorRepository
+import cl.duoc.huertoescolar.data.UsuarioRepository
 import cl.duoc.huertoescolar.model.Cultivo
 import cl.duoc.huertoescolar.model.EstadoCultivo
 import cl.duoc.huertoescolar.model.Sector
+import cl.duoc.huertoescolar.model.Usuario
 import cl.duoc.huertoescolar.util.Validaciones
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,10 +27,20 @@ class CultivoViewModel(
     private val database = AppDatabase.getInstance(application)
     private val repository = CultivoRepository(database.cultivoDao())
     private val sectorRepository = SectorRepository(database.sectorDao())
+    private val usuarioRepository = UsuarioRepository(database.usuarioDao())
 
     val sectores: StateFlow<List<Sector>> =
         sectorRepository
             .obtenerSectores()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
+    val estudiantes: StateFlow<List<Usuario>> =
+        usuarioRepository
+            .obtenerEstudiantes()
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -48,6 +60,16 @@ class CultivoViewModel(
                 sectorId = sector.id,
                 sectorTexto = "${sector.codigo} · ${sector.nombre}",
                 errorSector = null
+            )
+        }
+    }
+
+    fun seleccionarEstudiante(estudiante: Usuario) {
+        _uiState.update {
+            it.copy(
+                estudianteId = estudiante.id,
+                estudianteTexto = "${estudiante.nombre} ${estudiante.apellido}",
+                errorEstudiante = null
             )
         }
     }
@@ -82,11 +104,13 @@ class CultivoViewModel(
         )
         val rRiego = Validaciones.validarFrecuenciaRiego(estado.frecuenciaRiego)
         val sectorId = estado.sectorId
+        val estudianteId = estado.estudianteId
 
         _uiState.update {
             it.copy(
                 errorNombre = rNombre.mensaje,
                 errorSector = if (sectorId == null) "Selecciona un sector" else null,
+                errorEstudiante = if (estudianteId == null) "Selecciona un estudiante" else null,
                 errorSiembra = rSiembra.mensaje,
                 errorCosecha = rCosecha.mensaje,
                 errorRiego = rRiego.mensaje,
@@ -95,16 +119,18 @@ class CultivoViewModel(
         }
 
         val formularioValido = rNombre.esValido && rSiembra.esValido &&
-                rCosecha.esValido && rRiego.esValido && sectorId != null
+                rCosecha.esValido && rRiego.esValido &&
+                sectorId != null && estudianteId != null
 
-        if (formularioValido && sectorId != null) {
+        if (formularioValido && sectorId != null && estudianteId != null) {
             val cultivo = Cultivo(
                 nombre = estado.nombre.trim(),
                 sectorId = sectorId,
                 fechaSiembra = estado.fechaSiembra.trim(),
                 fechaCosecha = estado.fechaCosecha.trim(),
                 frecuenciaRiegoDias = estado.frecuenciaRiego.toInt(),
-                estado = estado.estado.name
+                estado = estado.estado.name,
+                estudianteId = estudianteId
             )
             viewModelScope.launch {
                 repository.guardar(cultivo)

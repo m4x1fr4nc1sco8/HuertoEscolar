@@ -48,6 +48,7 @@ fun CultivoFormScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val sectores by viewModel.sectores.collectAsStateWithLifecycle()
+    val estudiantes by viewModel.estudiantes.collectAsStateWithLifecycle()
     val estados = EstadoCultivo.entries
 
     Scaffold(
@@ -108,6 +109,24 @@ fun CultivoFormScreen(
                 opciones = sectores.map { "${it.codigo} · ${it.nombre}" },
                 alSeleccionar = { indice -> viewModel.seleccionarSector(sectores[indice]) },
                 error = uiState.errorSector,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            if (estudiantes.isEmpty()) {
+                Text(
+                    "No hay estudiantes registrados. Registra un usuario con perfil estudiante para asignarle el cultivo.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Spacer(Modifier.height(8.dp))
+            }
+
+            CampoDesplegable(
+                valor = uiState.estudianteTexto,
+                etiqueta = "Estudiante asignado",
+                opciones = estudiantes.map { "${it.nombre} ${it.apellido}" },
+                alSeleccionar = { indice -> viewModel.seleccionarEstudiante(estudiantes[indice]) },
+                error = uiState.errorEstudiante,
                 modifier = Modifier.fillMaxWidth()
             )
 

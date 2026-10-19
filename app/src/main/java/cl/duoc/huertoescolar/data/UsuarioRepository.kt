@@ -15,6 +15,11 @@ class UsuarioRepository(
         return usuarioDao.obtenerUsuarios()
     }
 
+    // Solo los usuarios con perfil estudiante (para asignarles cultivos)
+    fun obtenerEstudiantes(): Flow<List<Usuario>> {
+        return usuarioDao.obtenerPorTipo(Rol.ESTUDIANTE.name)
+    }
+
     suspend fun buscarPorCorreo(correo: String): Usuario? {
         return usuarioDao.buscarPorCorreo(correo)
     }

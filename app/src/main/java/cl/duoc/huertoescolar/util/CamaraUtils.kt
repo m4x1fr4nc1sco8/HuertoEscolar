@@ -16,11 +16,18 @@ fun crearUriFotografia(context: Context): Uri {
     )
 }
 
-fun guardarFotoPermanente(context: Context, origen: Uri): String? {
+// Copia la foto temporal a almacenamiento permanente y devuelve su Uri como texto.
+// Los valores por defecto mantienen el comportamiento original (sectores).
+fun guardarFotoPermanente(
+    context: Context,
+    origen: Uri,
+    carpeta: String = "fotos_sectores",
+    prefijo: String = "sector_"
+): String? {
     return try {
-        val carpeta = File(context.filesDir, "fotos_sectores")
-        carpeta.mkdirs()
-        val destino = File(carpeta, "sector_${System.currentTimeMillis()}.jpg")
+        val dir = File(context.filesDir, carpeta)
+        dir.mkdirs()
+        val destino = File(dir, "${prefijo}${System.currentTimeMillis()}.jpg")
         context.contentResolver.openInputStream(origen)?.use { entrada ->
             destino.outputStream().use { salida -> entrada.copyTo(salida) }
         } ?: return null
