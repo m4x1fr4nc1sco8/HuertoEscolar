@@ -13,14 +13,14 @@ import androidx.navigation.compose.rememberNavController
 import cl.duoc.huertoescolar.data.SesionActual
 import cl.duoc.huertoescolar.model.Rol
 import cl.duoc.huertoescolar.ui.screens.AccesoDenegadoScreen
+import cl.duoc.huertoescolar.ui.screens.CultivoFormScreen
+import cl.duoc.huertoescolar.ui.screens.CultivosScreen // <-- Crearemos este screen a continuación
 import cl.duoc.huertoescolar.ui.screens.InicioScreen
 import cl.duoc.huertoescolar.ui.screens.LoginScreen
 import cl.duoc.huertoescolar.ui.screens.RegistroScreen
 import cl.duoc.huertoescolar.ui.screens.SectorFormScreen
 import cl.duoc.huertoescolar.ui.screens.SectoresScreen
 import cl.duoc.huertoescolar.ui.screens.UsuariosScreen
-import cl.duoc.huertoescolar.ui.screens.CultivoFormScreen
-
 
 @Composable
 fun Navegacion() {
@@ -67,6 +67,7 @@ fun Navegacion() {
                 onIrASectores = { navController.navigate(Rutas.SECTORES) },
                 onIrAListaSectores = { navController.navigate(Rutas.LISTA_SECTORES) },
                 onIrACultivoForm = { navController.navigate(Rutas.CULTIVO_FORM) },
+                onIrACultivos = { navController.navigate(Rutas.CULTIVOS) }, // <-- NUEVO CALLBACK
                 onIrARegistro = { navController.navigate(Rutas.REGISTRO) },
                 onIrAUsuarios = { navController.navigate(Rutas.USUARIOS) },
                 onCerrarSesion = {
@@ -98,13 +99,20 @@ fun Navegacion() {
                 AccesoDenegadoScreen(onVolver = { navController.popBackStack() })
             }
         }
-
         composable(Rutas.CULTIVO_FORM) {
             if (esAdministrador) {
                 CultivoFormScreen(onVolver = { navController.popBackStack() })
             } else {
                 AccesoDenegadoScreen(onVolver = { navController.popBackStack() })
             }
+        }
+        // NUEVA RUTA PARA MOSTRAR LA LISTA DE CULTIVOS
+        composable(Rutas.CULTIVOS) {
+            CultivosScreen(
+                onVolver = { navController.popBackStack() },
+                onNuevoCultivo = { navController.navigate(Rutas.CULTIVO_FORM) },
+                puedeCrear = esAdministrador
+            )
         }
     }
 }
