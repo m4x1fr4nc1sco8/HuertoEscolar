@@ -13,5 +13,7 @@ object Rutas {
 
     const val CULTIVO_FORM = "cultivo_form"
 
-    const val CULTIVOS = "cultivos" //
+    const val CULTIVOS = "cultivos"
+
+    const val SECTORES_SERVIDOR = "sectores_servidor"
 }

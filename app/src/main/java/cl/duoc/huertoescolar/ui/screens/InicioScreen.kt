@@ -33,6 +33,7 @@ fun InicioScreen(
     onIrACultivos: () -> Unit, // <-- NUEVO PARAMETRO
     onIrARegistro: () -> Unit,
     onIrAUsuarios: () -> Unit,
+    onIrAServidor: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
     Scaffold(
@@ -96,6 +97,10 @@ fun InicioScreen(
                     Text("Usuarios registrados")
                 }
                 Spacer(Modifier.height(8.dp))
+                Button(onClick = onIrAServidor, modifier = Modifier.fillMaxWidth()) {
+                    Text("Sectores en el servidor")
+                }
+                Spacer(Modifier.height(8.dp))
             }
 
             OutlinedButton(onClick = onCerrarSesion, modifier = Modifier.fillMaxWidth()) {
@@ -118,6 +123,7 @@ fun InicioScreenPreview() {
             onIrACultivos = {},
             onIrARegistro = {},
             onIrAUsuarios = {},
+            onIrAServidor = {},
             onCerrarSesion = {}
         )
     }
