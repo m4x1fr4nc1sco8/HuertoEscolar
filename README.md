@@ -11,9 +11,6 @@
 
 ---
 
-## Planificación y Gestión del Proyecto
-* **Tablero de Trello:** [PEGA_AQUÍ_EL_ENLACE_A_SU_TRELLO_PÚBLICO]
-
 ---
 
 ## Funcionalidades Implementadas
