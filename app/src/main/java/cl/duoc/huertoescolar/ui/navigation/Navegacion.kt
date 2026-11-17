@@ -16,20 +16,21 @@ import cl.duoc.huertoescolar.data.SesionActual
 import cl.duoc.huertoescolar.model.Rol
 import cl.duoc.huertoescolar.ui.screens.AccesoDenegadoScreen
 import cl.duoc.huertoescolar.ui.screens.CultivoFormScreen
-import cl.duoc.huertoescolar.ui.screens.CultivosScreen // <-- Crearemos este screen a continuación
+import cl.duoc.huertoescolar.ui.screens.CultivosScreen
 import cl.duoc.huertoescolar.ui.screens.InicioScreen
 import cl.duoc.huertoescolar.ui.screens.LoginScreen
 import cl.duoc.huertoescolar.ui.screens.RegistroScreen
 import cl.duoc.huertoescolar.ui.screens.SectorFormScreen
 import cl.duoc.huertoescolar.ui.screens.SectoresScreen
-import cl.duoc.huertoescolar.ui.screens.UsuariosScreen
 import cl.duoc.huertoescolar.ui.screens.SectoresServidorScreen
+import cl.duoc.huertoescolar.ui.screens.UsuariosScreen
 
 @Composable
 fun Navegacion() {
     val navController = rememberNavController()
     val usuarioActual by SesionActual.usuario.collectAsStateWithLifecycle()
     val esAdministrador = usuarioActual?.tipoUsuario == Rol.ADMINISTRADOR.name
+    val volver: () -> Unit = { navController.popBackStack() }
 
     NavHost(
         navController = navController,
@@ -59,7 +60,7 @@ fun Navegacion() {
         }
         composable(Rutas.REGISTRO) {
             RegistroScreen(
-                onVolver = { navController.popBackStack() },
+                onVolver = volver,
                 puedeElegirPerfil = esAdministrador
             )
         }
@@ -70,7 +71,7 @@ fun Navegacion() {
                 onIrASectores = { navController.navigate(Rutas.SECTORES) },
                 onIrAListaSectores = { navController.navigate(Rutas.LISTA_SECTORES) },
                 onIrACultivoForm = { navController.navigate(Rutas.CULTIVO_FORM) },
-                onIrACultivos = { navController.navigate(Rutas.CULTIVOS) }, // <-- NUEVO CALLBACK
+                onIrACultivos = { navController.navigate(Rutas.CULTIVOS) },
                 onIrARegistro = { navController.navigate(Rutas.REGISTRO) },
                 onIrAUsuarios = { navController.navigate(Rutas.USUARIOS) },
                 onIrAServidor = { navController.navigate(Rutas.SECTORES_SERVIDOR) },
@@ -83,15 +84,13 @@ fun Navegacion() {
             )
         }
         composable(Rutas.SECTORES) {
-            if (esAdministrador) {
-                SectorFormScreen(onVolver = { navController.popBackStack() })
-            } else {
-                AccesoDenegadoScreen(onVolver = { navController.popBackStack() })
+            SoloAdministrador(esAdministrador, volver) {
+                SectorFormScreen(onVolver = volver)
             }
         }
         composable(Rutas.LISTA_SECTORES) {
             SectoresScreen(
-                onVolver = { navController.popBackStack() },
+                onVolver = volver,
                 onNuevoSector = { navController.navigate(Rutas.SECTORES) },
                 onEditarSector = { id -> navController.navigate(Rutas.sectorEditar(id)) },
                 puedeCrear = esAdministrador
@@ -101,44 +100,48 @@ fun Navegacion() {
             route = Rutas.SECTOR_EDITAR,
             arguments = listOf(navArgument("sectorId") { type = NavType.IntType })
         ) { entrada ->
-            if (esAdministrador) {
+            SoloAdministrador(esAdministrador, volver) {
                 SectorFormScreen(
-                    onVolver = { navController.popBackStack() },
+                    onVolver = volver,
                     sectorId = entrada.arguments?.getInt("sectorId")
                 )
-            } else {
-                AccesoDenegadoScreen(onVolver = { navController.popBackStack() })
             }
         }
         composable(Rutas.USUARIOS) {
-            if (esAdministrador) {
-                UsuariosScreen(onVolver = { navController.popBackStack() })
-            } else {
-                AccesoDenegadoScreen(onVolver = { navController.popBackStack() })
+            SoloAdministrador(esAdministrador, volver) {
+                UsuariosScreen(onVolver = volver)
             }
         }
         composable(Rutas.CULTIVO_FORM) {
-            if (esAdministrador) {
-                CultivoFormScreen(onVolver = { navController.popBackStack() })
-            } else {
-                AccesoDenegadoScreen(onVolver = { navController.popBackStack() })
+            SoloAdministrador(esAdministrador, volver) {
+                CultivoFormScreen(onVolver = volver)
             }
         }
-        // NUEVA RUTA PARA MOSTRAR LA LISTA DE CULTIVOS
         composable(Rutas.CULTIVOS) {
             CultivosScreen(
-                onVolver = { navController.popBackStack() },
+                onVolver = volver,
                 onNuevoCultivo = { navController.navigate(Rutas.CULTIVO_FORM) },
                 puedeCrear = esAdministrador
             )
         }
         composable(Rutas.SECTORES_SERVIDOR) {
-            if (esAdministrador) {
-                SectoresServidorScreen(onVolver = { navController.popBackStack() })
-            } else {
-                AccesoDenegadoScreen(onVolver = { navController.popBackStack() })
+            SoloAdministrador(esAdministrador, volver) {
+                SectoresServidorScreen(onVolver = volver)
             }
         }
     }
+}
 
+// Muestra la pantalla solo si el usuario es administrador; si no, "acceso denegado"
+@Composable
+private fun SoloAdministrador(
+    esAdministrador: Boolean,
+    onVolver: () -> Unit,
+    contenido: @Composable () -> Unit
+) {
+    if (esAdministrador) {
+        contenido()
+    } else {
+        AccesoDenegadoScreen(onVolver = onVolver)
+    }
 }

@@ -63,6 +63,7 @@ import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
 import cl.duoc.huertoescolar.util.crearUriFotografia
 import cl.duoc.huertoescolar.util.etiqueta
+import cl.duoc.huertoescolar.viewmodel.Fabrica
 import cl.duoc.huertoescolar.viewmodel.SectorUiState
 import cl.duoc.huertoescolar.viewmodel.SectorViewModel
 import coil3.compose.AsyncImage
@@ -72,7 +73,7 @@ import coil3.compose.AsyncImage
 fun SectorFormScreen(
     onVolver: () -> Unit,
     sectorId: Int? = null,
-    viewModel: SectorViewModel = viewModel()
+    viewModel: SectorViewModel = viewModel(factory = Fabrica.sector)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val esEdicion = sectorId != null

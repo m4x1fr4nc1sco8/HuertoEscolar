@@ -1,9 +1,7 @@
 package cl.duoc.huertoescolar.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.duoc.huertoescolar.data.AppDatabase
 import cl.duoc.huertoescolar.data.SesionActual
 import cl.duoc.huertoescolar.data.UsuarioRepository
 import cl.duoc.huertoescolar.util.Validaciones
@@ -14,11 +12,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    application: Application
-) : AndroidViewModel(application) {
-
-    private val database = AppDatabase.getInstance(application)
-    private val repository = UsuarioRepository(database.usuarioDao())
+    private val repository: UsuarioRepository,
+    private val sesion: SesionActual = SesionActual
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -59,7 +55,7 @@ class LoginViewModel(
             val usuario = repository.buscarPorCorreo(estado.correo.trim())
 
             if (usuario != null && usuario.clave == estado.clave) {
-                SesionActual.iniciar(usuario)
+                sesion.iniciar(usuario)
                 _uiState.value = LoginUiState()
                 onExitoso()
             } else {

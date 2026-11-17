@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.model.EstadoSector
+import cl.duoc.huertoescolar.viewmodel.Fabrica
 import cl.duoc.huertoescolar.viewmodel.SectoresViewModel
 import coil3.compose.AsyncImage
 
@@ -66,7 +67,7 @@ fun SectoresScreen(
     onNuevoSector: () -> Unit,
     puedeCrear: Boolean,
     onEditarSector: (Int) -> Unit = {},
-    viewModel: SectoresViewModel = viewModel()
+    viewModel: SectoresViewModel = viewModel(factory = Fabrica.sectores)
 ) {
     val sectores by viewModel.sectores.collectAsStateWithLifecycle()
 

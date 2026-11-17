@@ -1,9 +1,7 @@
 package cl.duoc.huertoescolar.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.duoc.huertoescolar.data.AppDatabase
 import cl.duoc.huertoescolar.data.SectorRepository
 import cl.duoc.huertoescolar.model.Sector
 import kotlinx.coroutines.flow.SharingStarted
@@ -11,11 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 class SectoresViewModel(
-    application: Application
-) : AndroidViewModel(application) {
-
-    private val database = AppDatabase.getInstance(application)
-    private val repository = SectorRepository(database.sectorDao())
+    repository: SectorRepository
+) : ViewModel() {
 
     val sectores: StateFlow<List<Sector>> =
         repository

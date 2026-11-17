@@ -1,32 +1,24 @@
 package cl.duoc.huertoescolar.viewmodel
 
-import android.app.Application
-import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.duoc.huertoescolar.data.AppDatabase
 import cl.duoc.huertoescolar.data.SectorRepository
 import cl.duoc.huertoescolar.model.EstadoSector
 import cl.duoc.huertoescolar.model.Sector
 import cl.duoc.huertoescolar.util.Validaciones
-import cl.duoc.huertoescolar.util.guardarFotoPermanente
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import kotlinx.coroutines.Dispatchers
+import cl.duoc.huertoescolar.util.fechaActual
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class SectorViewModel(
-    application: Application
-) : AndroidViewModel(application) {
-
-    private val database = AppDatabase.getInstance(application)
-    private val repository = SectorRepository(database.sectorDao())
+    private val repository: SectorRepository,
+    // Copia una foto temporal a almacenamiento permanente (null si falla)
+    private val guardarFoto: suspend (String) -> String?,
+    private val fechaHoy: () -> String = ::fechaActual
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SectorUiState())
     val uiState: StateFlow<SectorUiState> = _uiState.asStateFlow()
@@ -90,7 +82,28 @@ class SectorViewModel(
 
     fun guardar() {
         val estado = _uiState.value
+        if (!validarFormulario(estado)) return
 
+        val estadoSector = estadoDelSector(estado)
+        val fecha = fechaHoy()
+
+        viewModelScope.launch {
+            if (existeCodigoDuplicado(estado)) {
+                _uiState.update { it.copy(errorCodigo = "Ya existe un sector con ese código") }
+                return@launch
+            }
+            val rutaFoto = estado.fotoUri?.let { prepararFoto(it) }
+
+            if (estado.id != null) {
+                actualizarSector(estado, estado.id, estadoSector, rutaFoto)
+            } else {
+                crearSector(estado, estadoSector, fecha, rutaFoto)
+            }
+        }
+    }
+
+    // Marca los errores en pantalla y devuelve true si el formulario se puede guardar
+    private fun validarFormulario(estado: SectorUiState): Boolean {
         val rCodigo = Validaciones.validarObligatorio(estado.codigo, "El código")
         val rNombre = Validaciones.validarNombre(estado.nombre, "El nombre del sector")
         val rUbicacion = Validaciones.validarObligatorio(estado.ubicacion, "La ubicación")
@@ -105,74 +118,69 @@ class SectorViewModel(
             )
         }
 
-        val formularioValido = rCodigo.esValido && rNombre.esValido &&
+        return rCodigo.esValido && rNombre.esValido &&
                 rUbicacion.esValido && estado.confirma
+    }
 
-        if (formularioValido) {
-            val idEdicion = estado.id
-            val estadoSector = when {
-                idEdicion != null -> estado.estado
-                estado.enUso -> EstadoSector.EN_USO
-                else -> EstadoSector.DISPONIBLE
-            }
-            val fecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+    // Al editar se conserva el estado elegido; al crear depende del switch "en uso"
+    private fun estadoDelSector(estado: SectorUiState): EstadoSector = when {
+        estado.id != null -> estado.estado
+        estado.enUso -> EstadoSector.EN_USO
+        else -> EstadoSector.DISPONIBLE
+    }
 
-            viewModelScope.launch {
-                val codigoDuplicado = if (idEdicion != null) {
-                    repository.existeCodigoEnOtroSector(estado.codigo.trim(), idEdicion)
-                } else {
-                    repository.existeCodigo(estado.codigo.trim())
-                }
-                if (codigoDuplicado) {
-                    _uiState.update {
-                        it.copy(errorCodigo = "Ya existe un sector con ese código")
-                    }
-                    return@launch
-                }
-                val rutaFoto = estado.fotoUri?.let { temporal ->
-                    // Si ya es una foto guardada del sector, se conserva tal cual
-                    if (temporal.startsWith("file:")) {
-                        temporal
-                    } else {
-                        withContext(Dispatchers.IO) {
-                            guardarFotoPermanente(
-                                getApplication<Application>(),
-                                Uri.parse(temporal)
-                            )
-                        }
-                    }
-                }
+    private suspend fun existeCodigoDuplicado(estado: SectorUiState): Boolean {
+        val codigo = estado.codigo.trim()
+        return if (estado.id != null) {
+            repository.existeCodigoEnOtroSector(codigo, estado.id)
+        } else {
+            repository.existeCodigo(codigo)
+        }
+    }
 
-                if (idEdicion != null) {
-                    val ok = repository.actualizar(
-                        id = idEdicion,
-                        codigo = estado.codigo.trim(),
-                        nombre = estado.nombre.trim(),
-                        ubicacion = estado.ubicacion.trim(),
-                        estado = estadoSector.name,
-                        fotoUri = rutaFoto
-                    )
-                    _uiState.update {
-                        if (ok) {
-                            it.copy(mensaje = "Sector actualizado correctamente", guardado = true)
-                        } else {
-                            it.copy(mensaje = "No se pudo actualizar el sector")
-                        }
-                    }
-                    return@launch
-                }
+    // Si ya es una foto guardada del sector, se conserva tal cual
+    private suspend fun prepararFoto(temporal: String): String? =
+        if (temporal.startsWith("file:")) temporal else guardarFoto(temporal)
 
-                val sector = Sector(
-                    codigo = estado.codigo.trim(),
-                    nombre = estado.nombre.trim(),
-                    ubicacion = estado.ubicacion.trim(),
-                    estado = estadoSector.name,
-                    fechaCreacion = fecha,
-                    fotoUri = rutaFoto
-                )
-                repository.guardar(sector)
-                _uiState.value = SectorUiState(mensaje = "Sector guardado correctamente")
+    private suspend fun actualizarSector(
+        estado: SectorUiState,
+        id: Int,
+        estadoSector: EstadoSector,
+        rutaFoto: String?
+    ) {
+        val ok = repository.actualizar(
+            id = id,
+            codigo = estado.codigo.trim(),
+            nombre = estado.nombre.trim(),
+            ubicacion = estado.ubicacion.trim(),
+            estado = estadoSector.name,
+            fotoUri = rutaFoto
+        )
+        _uiState.update {
+            if (ok) {
+                it.copy(mensaje = "Sector actualizado correctamente", guardado = true)
+            } else {
+                it.copy(mensaje = "No se pudo actualizar el sector")
             }
         }
+    }
+
+    private suspend fun crearSector(
+        estado: SectorUiState,
+        estadoSector: EstadoSector,
+        fecha: String,
+        rutaFoto: String?
+    ) {
+        repository.guardar(
+            Sector(
+                codigo = estado.codigo.trim(),
+                nombre = estado.nombre.trim(),
+                ubicacion = estado.ubicacion.trim(),
+                estado = estadoSector.name,
+                fechaCreacion = fecha,
+                fotoUri = rutaFoto
+            )
+        )
+        _uiState.value = SectorUiState(mensaje = "Sector guardado correctamente")
     }
 }

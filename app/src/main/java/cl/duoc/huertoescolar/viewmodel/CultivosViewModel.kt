@@ -1,9 +1,7 @@
 package cl.duoc.huertoescolar.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.duoc.huertoescolar.data.AppDatabase
 import cl.duoc.huertoescolar.data.CultivoRepository
 import cl.duoc.huertoescolar.data.SesionActual
 import cl.duoc.huertoescolar.model.Cultivo
@@ -18,15 +16,15 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class CultivosViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository =
-        CultivoRepository(AppDatabase.getInstance(application).cultivoDao())
+class CultivosViewModel(
+    private val repository: CultivoRepository,
+    private val sesion: SesionActual = SesionActual
+) : ViewModel() {
 
     // Estudiante: solo sus cultivos asignados. Admin: todos.
     @OptIn(ExperimentalCoroutinesApi::class)
     val cultivos: StateFlow<List<Cultivo>> =
-        SesionActual.usuario
+        sesion.usuario
             .flatMapLatest { usuario ->
                 if (usuario != null && usuario.tipoUsuario == Rol.ESTUDIANTE.name) {
                     repository.obtenerPorEstudiante(usuario.id)
@@ -44,7 +42,7 @@ class CultivosViewModel(application: Application) : AndroidViewModel(application
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
 
     fun marcarComoRealizada(cultivoId: Int, fotoUri: String) {
-        val usuario = SesionActual.usuario.value ?: return
+        val usuario = sesion.usuario.value ?: return
         viewModelScope.launch {
             val ok = repository.marcarComoRealizada(cultivoId, usuario.id, fotoUri)
             _mensaje.value = if (ok) {
@@ -56,7 +54,7 @@ class CultivosViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun esAdministrador(): Boolean =
-        SesionActual.usuario.value?.tipoUsuario == Rol.ADMINISTRADOR.name
+        sesion.usuario.value?.tipoUsuario == Rol.ADMINISTRADOR.name
 
     // Admin: cambia el estado de desarrollo del cultivo (la lista se actualiza sola)
     fun cambiarEstado(cultivoId: Int, estado: EstadoCultivo) {

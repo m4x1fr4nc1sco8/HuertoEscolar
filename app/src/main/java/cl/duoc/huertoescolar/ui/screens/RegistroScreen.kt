@@ -37,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
+import cl.duoc.huertoescolar.viewmodel.Fabrica
 import cl.duoc.huertoescolar.viewmodel.RegistroViewModel
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -46,7 +47,7 @@ import androidx.compose.animation.fadeIn
 fun RegistroScreen(
     onVolver: () -> Unit,
     puedeElegirPerfil: Boolean,
-    viewModel: RegistroViewModel = viewModel()
+    viewModel: RegistroViewModel = viewModel(factory = Fabrica.registro)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

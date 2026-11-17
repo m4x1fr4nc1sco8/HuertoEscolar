@@ -30,13 +30,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.model.Rol
+import cl.duoc.huertoescolar.viewmodel.Fabrica
 import cl.duoc.huertoescolar.viewmodel.UsuariosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsuariosScreen(
     onVolver: () -> Unit,
-    viewModel: UsuariosViewModel = viewModel()
+    viewModel: UsuariosViewModel = viewModel(factory = Fabrica.usuarios)
 ) {
     val usuarios by viewModel.usuarios.collectAsStateWithLifecycle()
 

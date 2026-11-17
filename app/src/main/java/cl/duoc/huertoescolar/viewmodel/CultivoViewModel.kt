@@ -1,9 +1,7 @@
 package cl.duoc.huertoescolar.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.duoc.huertoescolar.data.AppDatabase
 import cl.duoc.huertoescolar.data.CultivoRepository
 import cl.duoc.huertoescolar.data.SectorRepository
 import cl.duoc.huertoescolar.data.UsuarioRepository
@@ -21,13 +19,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CultivoViewModel(
-    application: Application
-) : AndroidViewModel(application) {
-
-    private val database = AppDatabase.getInstance(application)
-    private val repository = CultivoRepository(database.cultivoDao())
-    private val sectorRepository = SectorRepository(database.sectorDao())
-    private val usuarioRepository = UsuarioRepository(database.usuarioDao())
+    private val repository: CultivoRepository,
+    sectorRepository: SectorRepository,
+    usuarioRepository: UsuarioRepository
+) : ViewModel() {
 
     val sectores: StateFlow<List<Sector>> =
         sectorRepository
@@ -96,21 +91,40 @@ class CultivoViewModel(
 
     fun guardar() {
         val estado = _uiState.value
+        if (!validarFormulario(estado)) return
 
+        val sectorId = estado.sectorId ?: return
+        val estudianteId = estado.estudianteId ?: return
+
+        val cultivo = Cultivo(
+            nombre = estado.nombre.trim(),
+            sectorId = sectorId,
+            fechaSiembra = estado.fechaSiembra.trim(),
+            fechaCosecha = estado.fechaCosecha.trim(),
+            frecuenciaRiegoDias = estado.frecuenciaRiego.toInt(),
+            estado = estado.estado.name,
+            estudianteId = estudianteId
+        )
+        viewModelScope.launch {
+            repository.guardar(cultivo)
+            _uiState.value = CultivoUiState(mensaje = "Cultivo guardado correctamente")
+        }
+    }
+
+    // Marca los errores en pantalla y devuelve true si el formulario se puede guardar
+    private fun validarFormulario(estado: CultivoUiState): Boolean {
         val rNombre = Validaciones.validarNombre(estado.nombre, "El nombre del cultivo")
         val rSiembra = Validaciones.validarFecha(estado.fechaSiembra, "La fecha de siembra")
         val rCosecha = Validaciones.validarCosechaPosterior(
             estado.fechaSiembra, estado.fechaCosecha
         )
         val rRiego = Validaciones.validarFrecuenciaRiego(estado.frecuenciaRiego)
-        val sectorId = estado.sectorId
-        val estudianteId = estado.estudianteId
 
         _uiState.update {
             it.copy(
                 errorNombre = rNombre.mensaje,
-                errorSector = if (sectorId == null) "Selecciona un sector" else null,
-                errorEstudiante = if (estudianteId == null) "Selecciona un estudiante" else null,
+                errorSector = if (estado.sectorId == null) "Selecciona un sector" else null,
+                errorEstudiante = if (estado.estudianteId == null) "Selecciona un estudiante" else null,
                 errorSiembra = rSiembra.mensaje,
                 errorCosecha = rCosecha.mensaje,
                 errorRiego = rRiego.mensaje,
@@ -118,24 +132,8 @@ class CultivoViewModel(
             )
         }
 
-        val formularioValido = rNombre.esValido && rSiembra.esValido &&
+        return rNombre.esValido && rSiembra.esValido &&
                 rCosecha.esValido && rRiego.esValido &&
-                sectorId != null && estudianteId != null
-
-        if (formularioValido && sectorId != null && estudianteId != null) {
-            val cultivo = Cultivo(
-                nombre = estado.nombre.trim(),
-                sectorId = sectorId,
-                fechaSiembra = estado.fechaSiembra.trim(),
-                fechaCosecha = estado.fechaCosecha.trim(),
-                frecuenciaRiegoDias = estado.frecuenciaRiego.toInt(),
-                estado = estado.estado.name,
-                estudianteId = estudianteId
-            )
-            viewModelScope.launch {
-                repository.guardar(cultivo)
-                _uiState.value = CultivoUiState(mensaje = "Cultivo guardado correctamente")
-            }
-        }
+                estado.sectorId != null && estado.estudianteId != null
     }
 }

@@ -68,6 +68,7 @@ import cl.duoc.huertoescolar.util.crearUriFotografia
 import cl.duoc.huertoescolar.util.etiqueta
 import cl.duoc.huertoescolar.util.guardarFotoPermanente
 import cl.duoc.huertoescolar.viewmodel.CultivosViewModel
+import cl.duoc.huertoescolar.viewmodel.Fabrica
 // Si AsyncImage sale en rojo, usa el mismo import que tienes en SectoresScreen
 // (coil3.compose.AsyncImage o coil.compose.AsyncImage).
 import coil3.compose.AsyncImage
@@ -78,7 +79,7 @@ fun CultivosScreen(
     onVolver: () -> Unit,
     onNuevoCultivo: () -> Unit,
     puedeCrear: Boolean,
-    viewModel: CultivosViewModel = viewModel()
+    viewModel: CultivosViewModel = viewModel(factory = Fabrica.cultivos)
 ) {
     val cultivos by viewModel.cultivos.collectAsStateWithLifecycle()
     val mensaje by viewModel.mensaje.collectAsStateWithLifecycle()

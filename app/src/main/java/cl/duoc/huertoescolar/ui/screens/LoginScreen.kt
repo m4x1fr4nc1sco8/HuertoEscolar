@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
+import cl.duoc.huertoescolar.viewmodel.Fabrica
 import cl.duoc.huertoescolar.viewmodel.LoginUiState
 import cl.duoc.huertoescolar.viewmodel.LoginViewModel
 
@@ -41,7 +42,7 @@ import cl.duoc.huertoescolar.viewmodel.LoginViewModel
 fun LoginScreen(
     onLoginExitoso: () -> Unit,
     onIrARegistro: () -> Unit,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = viewModel(factory = Fabrica.login)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

@@ -39,12 +39,13 @@ import cl.duoc.huertoescolar.ui.components.CampoDesplegable
 import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.util.etiqueta
 import cl.duoc.huertoescolar.viewmodel.CultivoViewModel
+import cl.duoc.huertoescolar.viewmodel.Fabrica
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CultivoFormScreen(
     onVolver: () -> Unit,
-    viewModel: CultivoViewModel = viewModel()
+    viewModel: CultivoViewModel = viewModel(factory = Fabrica.cultivo)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val sectores by viewModel.sectores.collectAsStateWithLifecycle()
