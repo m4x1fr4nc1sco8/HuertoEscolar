@@ -42,6 +42,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -56,9 +57,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cl.duoc.huertoescolar.model.EstadoSector
+import cl.duoc.huertoescolar.ui.components.CampoDesplegable
 import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
 import cl.duoc.huertoescolar.util.crearUriFotografia
+import cl.duoc.huertoescolar.util.etiqueta
 import cl.duoc.huertoescolar.viewmodel.SectorUiState
 import cl.duoc.huertoescolar.viewmodel.SectorViewModel
 import coil3.compose.AsyncImage
@@ -67,9 +71,20 @@ import coil3.compose.AsyncImage
 @Composable
 fun SectorFormScreen(
     onVolver: () -> Unit,
+    sectorId: Int? = null,
     viewModel: SectorViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val esEdicion = sectorId != null
+
+    // Si venimos a editar, cargamos el sector en el formulario
+    LaunchedEffect(sectorId) {
+        if (sectorId != null) viewModel.cargarParaEditar(sectorId)
+    }
+    // Al guardar una edición, volvemos a la lista
+    LaunchedEffect(uiState.guardado) {
+        if (uiState.guardado) onVolver()
+    }
 
     Scaffold(
         topBar = {
@@ -79,7 +94,7 @@ fun SectorFormScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                title = { Text("Sectores") },
+                title = { Text(if (esEdicion) "Editar sector" else "Sectores") },
                 navigationIcon = {
                     IconButton(onClick = { onVolver() }) {
                         Icon(
@@ -94,6 +109,8 @@ fun SectorFormScreen(
         SectorFormContenido(
             uiState = uiState,
             viewModel = viewModel,
+            esEdicion = esEdicion,
+            onCancelar = onVolver,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -103,6 +120,8 @@ fun SectorFormScreen(
 private fun SectorFormContenido(
     uiState: SectorUiState,
     viewModel: SectorViewModel,
+    esEdicion: Boolean,
+    onCancelar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -142,7 +161,7 @@ private fun SectorFormContenido(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            "Registrar sector",
+            if (esEdicion) "Editar sector" else "Registrar sector",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -243,12 +262,23 @@ private fun SectorFormContenido(
 
         Spacer(Modifier.height(8.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Sector en uso", modifier = Modifier.weight(1f))
-            Switch(
-                checked = uiState.enUso,
-                onCheckedChange = { viewModel.cambiarEnUso(it) }
+        if (esEdicion) {
+            // Al editar se puede elegir cualquiera de los 4 estados
+            CampoDesplegable(
+                valor = uiState.estado.etiqueta(),
+                etiqueta = "Estado del sector",
+                opciones = EstadoSector.entries.map { it.etiqueta() },
+                alSeleccionar = { viewModel.cambiarEstado(EstadoSector.entries[it]) },
+                modifier = Modifier.fillMaxWidth()
             )
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Sector en uso", modifier = Modifier.weight(1f))
+                Switch(
+                    checked = uiState.enUso,
+                    onCheckedChange = { viewModel.cambiarEnUso(it) }
+                )
+            }
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -270,10 +300,10 @@ private fun SectorFormContenido(
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(
-                onClick = { viewModel.limpiar() },
+                onClick = { if (esEdicion) onCancelar() else viewModel.limpiar() },
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Limpiar")
+                Text(if (esEdicion) "Cancelar" else "Limpiar")
             }
             Button(
                 onClick = { viewModel.guardar() },

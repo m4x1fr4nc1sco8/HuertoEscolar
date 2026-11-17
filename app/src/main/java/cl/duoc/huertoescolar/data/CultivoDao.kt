@@ -15,6 +15,10 @@ interface CultivoDao {
     @Query("SELECT * FROM cultivos ORDER BY id DESC")
     fun obtenerCultivos(): Flow<List<Cultivo>>
 
+    // El admin cambia el estado de desarrollo del cultivo. Devuelve filas actualizadas.
+    @Query("UPDATE cultivos SET estado = :estado WHERE id = :id")
+    suspend fun actualizarEstado(id: Int, estado: String): Int
+
     // Cultivos asignados a un estudiante
     @Query("SELECT * FROM cultivos WHERE estudianteId = :estudianteId ORDER BY id DESC")
     fun obtenerPorEstudiante(estudianteId: Int): Flow<List<Cultivo>>

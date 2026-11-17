@@ -60,8 +60,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.data.SesionActual
 import cl.duoc.huertoescolar.model.Cultivo
+import cl.duoc.huertoescolar.model.EstadoCultivo
 import cl.duoc.huertoescolar.model.EstadoTarea
 import cl.duoc.huertoescolar.model.Rol
+import cl.duoc.huertoescolar.ui.components.CampoDesplegable
 import cl.duoc.huertoescolar.util.crearUriFotografia
 import cl.duoc.huertoescolar.util.etiqueta
 import cl.duoc.huertoescolar.util.guardarFotoPermanente
@@ -196,6 +198,7 @@ fun CultivosScreen(
                         cultivo = cultivo,
                         esEstudiante = esEstudiante,
                         esAdministrador = esAdministrador,
+                        onCambiarEstado = { viewModel.cambiarEstado(cultivo.id, it) },
                         onValidar = { viewModel.validar(cultivo.id) },
                         onRechazar = { cultivoARechazar = cultivo.id },
                         onTomarFoto = {
@@ -217,6 +220,7 @@ private fun TarjetaCultivo(
     cultivo: Cultivo,
     esEstudiante: Boolean,
     esAdministrador: Boolean,
+    onCambiarEstado: (EstadoCultivo) -> Unit,
     onValidar: () -> Unit,
     onRechazar: () -> Unit,
     onTomarFoto: () -> Unit,
@@ -227,6 +231,7 @@ private fun TarjetaCultivo(
     val fueRechazado = estadoTarea == EstadoTarea.PENDIENTE &&
             !cultivo.motivoRechazo.isNullOrBlank()
     val puedeEnviar = esEstudiante && estadoTarea == EstadoTarea.PENDIENTE
+    val estadoCultivo = EstadoCultivo.entries.firstOrNull { it.name == cultivo.estado }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -256,10 +261,22 @@ private fun TarjetaCultivo(
                 text = "Riego: cada ${cultivo.frecuenciaRiegoDias} días",
                 style = MaterialTheme.typography.bodySmall
             )
-            Text(
-                text = "Estado: ${cultivo.estado}",
-                style = MaterialTheme.typography.bodySmall
-            )
+            if (esAdministrador) {
+                // HU08: el administrador elige el nuevo estado desde un menú desplegable
+                Spacer(Modifier.height(8.dp))
+                CampoDesplegable(
+                    valor = estadoCultivo?.etiqueta() ?: cultivo.estado,
+                    etiqueta = "Estado del cultivo",
+                    opciones = EstadoCultivo.entries.map { it.etiqueta() },
+                    alSeleccionar = { onCambiarEstado(EstadoCultivo.entries[it]) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                Text(
+                    text = "Estado: ${estadoCultivo?.etiqueta() ?: cultivo.estado}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             Spacer(Modifier.height(8.dp))
             Text(

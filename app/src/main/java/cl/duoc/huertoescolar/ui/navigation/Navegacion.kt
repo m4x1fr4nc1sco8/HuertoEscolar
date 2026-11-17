@@ -7,9 +7,11 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import cl.duoc.huertoescolar.data.SesionActual
 import cl.duoc.huertoescolar.model.Rol
 import cl.duoc.huertoescolar.ui.screens.AccesoDenegadoScreen
@@ -91,8 +93,22 @@ fun Navegacion() {
             SectoresScreen(
                 onVolver = { navController.popBackStack() },
                 onNuevoSector = { navController.navigate(Rutas.SECTORES) },
+                onEditarSector = { id -> navController.navigate(Rutas.sectorEditar(id)) },
                 puedeCrear = esAdministrador
             )
+        }
+        composable(
+            route = Rutas.SECTOR_EDITAR,
+            arguments = listOf(navArgument("sectorId") { type = NavType.IntType })
+        ) { entrada ->
+            if (esAdministrador) {
+                SectorFormScreen(
+                    onVolver = { navController.popBackStack() },
+                    sectorId = entrada.arguments?.getInt("sectorId")
+                )
+            } else {
+                AccesoDenegadoScreen(onVolver = { navController.popBackStack() })
+            }
         }
         composable(Rutas.USUARIOS) {
             if (esAdministrador) {

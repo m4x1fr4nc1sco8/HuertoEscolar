@@ -1,6 +1,7 @@
 package cl.duoc.huertoescolar.util
 
 import cl.duoc.huertoescolar.model.EstadoCultivo
+import cl.duoc.huertoescolar.model.EstadoSector
 import cl.duoc.huertoescolar.model.EstadoTarea
 
 fun EstadoCultivo.etiqueta(): String = when (this) {
@@ -11,6 +12,13 @@ fun EstadoCultivo.etiqueta(): String = when (this) {
     EstadoCultivo.COSECHADO -> "Cosechado"
     EstadoCultivo.CON_PROBLEMAS -> "Con problemas"
     EstadoCultivo.FINALIZADO -> "Finalizado"
+}
+
+fun EstadoSector.etiqueta(): String = when (this) {
+    EstadoSector.DISPONIBLE -> "Disponible"
+    EstadoSector.EN_USO -> "En uso"
+    EstadoSector.EN_MANTENIMIENTO -> "En mantenimiento"
+    EstadoSector.FUERA_DE_USO -> "Fuera de uso"
 }
 
 fun EstadoTarea.etiqueta(): String = when (this) {

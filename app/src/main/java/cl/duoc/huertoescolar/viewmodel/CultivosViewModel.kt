@@ -7,6 +7,7 @@ import cl.duoc.huertoescolar.data.AppDatabase
 import cl.duoc.huertoescolar.data.CultivoRepository
 import cl.duoc.huertoescolar.data.SesionActual
 import cl.duoc.huertoescolar.model.Cultivo
+import cl.duoc.huertoescolar.model.EstadoCultivo
 import cl.duoc.huertoescolar.model.Rol
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,6 +57,19 @@ class CultivosViewModel(application: Application) : AndroidViewModel(application
 
     private fun esAdministrador(): Boolean =
         SesionActual.usuario.value?.tipoUsuario == Rol.ADMINISTRADOR.name
+
+    // Admin: cambia el estado de desarrollo del cultivo (la lista se actualiza sola)
+    fun cambiarEstado(cultivoId: Int, estado: EstadoCultivo) {
+        if (!esAdministrador()) return
+        viewModelScope.launch {
+            val ok = repository.cambiarEstado(cultivoId, estado)
+            _mensaje.value = if (ok) {
+                "Estado actualizado a: ${estado.name.lowercase().replace('_', ' ')}"
+            } else {
+                "No se pudo actualizar el estado."
+            }
+        }
+    }
 
     // Admin: valida la tarea enviada por el estudiante
     fun validar(cultivoId: Int) {

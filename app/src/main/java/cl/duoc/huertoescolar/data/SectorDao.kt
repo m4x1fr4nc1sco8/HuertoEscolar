@@ -17,4 +17,25 @@ interface SectorDao {
 
     @Query("SELECT COUNT(*) FROM sectores WHERE LOWER(codigo) = LOWER(:codigo)")
     suspend fun contarPorCodigo(codigo: String): Int
+
+    @Query("SELECT * FROM sectores WHERE id = :id")
+    suspend fun obtenerPorId(id: Int): Sector?
+
+    // Igual que contarPorCodigo, pero ignora el sector que se está editando
+    @Query("SELECT COUNT(*) FROM sectores WHERE LOWER(codigo) = LOWER(:codigo) AND id != :idExcluido")
+    suspend fun contarPorCodigoExcluyendo(codigo: String, idExcluido: Int): Int
+
+    // Devuelve la cantidad de filas actualizadas (0 = no existe el sector)
+    @Query(
+        "UPDATE sectores SET codigo = :codigo, nombre = :nombre, ubicacion = :ubicacion, " +
+                "estado = :estado, fotoUri = :fotoUri WHERE id = :id"
+    )
+    suspend fun actualizar(
+        id: Int,
+        codigo: String,
+        nombre: String,
+        ubicacion: String,
+        estado: String,
+        fotoUri: String?
+    ): Int
 }

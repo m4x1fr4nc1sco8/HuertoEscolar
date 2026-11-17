@@ -47,6 +47,31 @@ class SectorViewModel(
         _uiState.update { it.copy(enUso = valor) }
     }
 
+    fun cambiarEstado(valor: EstadoSector) {
+        _uiState.update { it.copy(estado = valor) }
+    }
+
+    // Carga un sector existente en el formulario para editarlo
+    fun cargarParaEditar(id: Int) {
+        if (_uiState.value.id == id) return
+        viewModelScope.launch {
+            val sector = repository.obtenerPorId(id)
+            if (sector == null) {
+                _uiState.update { it.copy(mensaje = "No se encontró el sector") }
+                return@launch
+            }
+            _uiState.value = SectorUiState(
+                id = sector.id,
+                codigo = sector.codigo,
+                nombre = sector.nombre,
+                ubicacion = sector.ubicacion,
+                estado = EstadoSector.entries.firstOrNull { it.name == sector.estado }
+                    ?: EstadoSector.DISPONIBLE,
+                fotoUri = sector.fotoUri
+            )
+        }
+    }
+
     fun cambiarConfirma(valor: Boolean) {
         _uiState.update { it.copy(confirma = valor, errorConfirma = null) }
     }
@@ -84,24 +109,57 @@ class SectorViewModel(
                 rUbicacion.esValido && estado.confirma
 
         if (formularioValido) {
-            val estadoSector =
-                if (estado.enUso) EstadoSector.EN_USO else EstadoSector.DISPONIBLE
+            val idEdicion = estado.id
+            val estadoSector = when {
+                idEdicion != null -> estado.estado
+                estado.enUso -> EstadoSector.EN_USO
+                else -> EstadoSector.DISPONIBLE
+            }
             val fecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
 
             viewModelScope.launch {
-                if (repository.existeCodigo(estado.codigo.trim())) {
+                val codigoDuplicado = if (idEdicion != null) {
+                    repository.existeCodigoEnOtroSector(estado.codigo.trim(), idEdicion)
+                } else {
+                    repository.existeCodigo(estado.codigo.trim())
+                }
+                if (codigoDuplicado) {
                     _uiState.update {
                         it.copy(errorCodigo = "Ya existe un sector con ese código")
                     }
                     return@launch
                 }
                 val rutaFoto = estado.fotoUri?.let { temporal ->
-                    withContext(Dispatchers.IO) {
-                        guardarFotoPermanente(
-                            getApplication<Application>(),
-                            Uri.parse(temporal)
-                        )
+                    // Si ya es una foto guardada del sector, se conserva tal cual
+                    if (temporal.startsWith("file:")) {
+                        temporal
+                    } else {
+                        withContext(Dispatchers.IO) {
+                            guardarFotoPermanente(
+                                getApplication<Application>(),
+                                Uri.parse(temporal)
+                            )
+                        }
                     }
+                }
+
+                if (idEdicion != null) {
+                    val ok = repository.actualizar(
+                        id = idEdicion,
+                        codigo = estado.codigo.trim(),
+                        nombre = estado.nombre.trim(),
+                        ubicacion = estado.ubicacion.trim(),
+                        estado = estadoSector.name,
+                        fotoUri = rutaFoto
+                    )
+                    _uiState.update {
+                        if (ok) {
+                            it.copy(mensaje = "Sector actualizado correctamente", guardado = true)
+                        } else {
+                            it.copy(mensaje = "No se pudo actualizar el sector")
+                        }
+                    }
+                    return@launch
                 }
 
                 val sector = Sector(

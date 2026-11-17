@@ -1,6 +1,7 @@
 package cl.duoc.huertoescolar.data
 
 import cl.duoc.huertoescolar.model.Cultivo
+import cl.duoc.huertoescolar.model.EstadoCultivo
 import cl.duoc.huertoescolar.model.EstadoTarea
 import kotlinx.coroutines.flow.Flow
 
@@ -13,6 +14,11 @@ class CultivoRepository(
 
     fun obtenerCultivos(): Flow<List<Cultivo>> {
         return cultivoDao.obtenerCultivos()
+    }
+
+    // Admin: actualiza el estado de desarrollo del cultivo.
+    suspend fun cambiarEstado(cultivoId: Int, estado: EstadoCultivo): Boolean {
+        return cultivoDao.actualizarEstado(cultivoId, estado.name) > 0
     }
 
     // --- Flujo de tarea ---
