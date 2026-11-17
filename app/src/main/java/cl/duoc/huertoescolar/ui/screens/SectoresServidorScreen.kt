@@ -32,8 +32,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cl.duoc.huertoescolar.viewmodel.SectoresServidorUiState
-import cl.duoc.huertoescolar.viewmodel.SectoresServidorViewModel
+import cl.duoc.huertoescolar.ui.viewmodel.SectoresServidorUiState
+import cl.duoc.huertoescolar.ui.viewmodel.SectoresServidorViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

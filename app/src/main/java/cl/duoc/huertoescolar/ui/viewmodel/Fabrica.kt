@@ -1,4 +1,4 @@
-package cl.duoc.huertoescolar.viewmodel
+package cl.duoc.huertoescolar.ui.viewmodel
 import cl.duoc.huertoescolar.data.CultivoRepository
 import android.app.Application
 import android.net.Uri
@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import cl.duoc.huertoescolar.data.AppDatabase
+import cl.duoc.huertoescolar.data.local.AppDatabase
 import cl.duoc.huertoescolar.data.SectorRepository
 import cl.duoc.huertoescolar.data.UsuarioRepository
 import cl.duoc.huertoescolar.util.guardarFotoPermanente

@@ -1,6 +1,6 @@
-package cl.duoc.huertoescolar.data
+package cl.duoc.huertoescolar.data.session
 
-import cl.duoc.huertoescolar.model.Usuario
+import cl.duoc.huertoescolar.domain.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

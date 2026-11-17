@@ -1,20 +1,20 @@
-package cl.duoc.huertoescolar.viewmodel
+package cl.duoc.huertoescolar.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.duoc.huertoescolar.data.SectorRepository
-import cl.duoc.huertoescolar.model.Sector
+import cl.duoc.huertoescolar.data.UsuarioRepository
+import cl.duoc.huertoescolar.domain.model.Usuario
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
-class SectoresViewModel(
-    repository: SectorRepository
+class UsuariosViewModel(
+    repository: UsuarioRepository
 ) : ViewModel() {
 
-    val sectores: StateFlow<List<Sector>> =
+    val usuarios: StateFlow<List<Usuario>> =
         repository
-            .obtenerSectores()
+            .obtenerUsuarios()
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),

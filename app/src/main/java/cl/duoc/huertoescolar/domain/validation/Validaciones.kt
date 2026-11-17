@@ -1,4 +1,4 @@
-package cl.duoc.huertoescolar.util
+package cl.duoc.huertoescolar.domain.validation
 
 import java.text.ParseException
 import java.text.SimpleDateFormat

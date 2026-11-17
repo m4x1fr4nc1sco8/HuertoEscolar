@@ -1,8 +1,9 @@
 package cl.duoc.huertoescolar.data
 
-import cl.duoc.huertoescolar.model.Cultivo
-import cl.duoc.huertoescolar.model.EstadoCultivo
-import cl.duoc.huertoescolar.model.EstadoTarea
+import cl.duoc.huertoescolar.data.local.CultivoDao
+import cl.duoc.huertoescolar.domain.model.Cultivo
+import cl.duoc.huertoescolar.domain.model.EstadoCultivo
+import cl.duoc.huertoescolar.domain.model.EstadoTarea
 import kotlinx.coroutines.flow.Flow
 
 class CultivoRepository(

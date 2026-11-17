@@ -1,4 +1,4 @@
-package cl.duoc.huertoescolar.model
+package cl.duoc.huertoescolar.domain.model
 
 import androidx.room3.ColumnInfo
 import androidx.room3.Entity

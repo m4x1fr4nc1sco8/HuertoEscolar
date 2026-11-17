@@ -34,9 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
-import cl.duoc.huertoescolar.viewmodel.Fabrica
-import cl.duoc.huertoescolar.viewmodel.LoginUiState
-import cl.duoc.huertoescolar.viewmodel.LoginViewModel
+import cl.duoc.huertoescolar.ui.viewmodel.Fabrica
+import cl.duoc.huertoescolar.ui.viewmodel.LoginUiState
+import cl.duoc.huertoescolar.ui.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(

@@ -1,8 +1,8 @@
 package cl.duoc.huertoescolar.util
 
-import cl.duoc.huertoescolar.model.EstadoCultivo
-import cl.duoc.huertoescolar.model.EstadoSector
-import cl.duoc.huertoescolar.model.EstadoTarea
+import cl.duoc.huertoescolar.domain.model.EstadoCultivo
+import cl.duoc.huertoescolar.domain.model.EstadoSector
+import cl.duoc.huertoescolar.domain.model.EstadoTarea
 
 fun EstadoCultivo.etiqueta(): String = when (this) {
     EstadoCultivo.PLANIFICADO -> "Planificado"

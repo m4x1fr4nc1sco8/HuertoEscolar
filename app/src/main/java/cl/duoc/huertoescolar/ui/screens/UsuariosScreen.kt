@@ -29,9 +29,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cl.duoc.huertoescolar.model.Rol
-import cl.duoc.huertoescolar.viewmodel.Fabrica
-import cl.duoc.huertoescolar.viewmodel.UsuariosViewModel
+import cl.duoc.huertoescolar.domain.model.Rol
+import cl.duoc.huertoescolar.ui.viewmodel.Fabrica
+import cl.duoc.huertoescolar.ui.viewmodel.UsuariosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

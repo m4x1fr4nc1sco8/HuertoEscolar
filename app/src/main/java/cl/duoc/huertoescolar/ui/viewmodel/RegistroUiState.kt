@@ -1,4 +1,4 @@
-package cl.duoc.huertoescolar.viewmodel
+package cl.duoc.huertoescolar.ui.viewmodel
 
 data class RegistroUiState(
     val nombre: String = "",

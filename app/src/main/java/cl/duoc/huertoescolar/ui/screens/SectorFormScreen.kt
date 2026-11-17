@@ -57,15 +57,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cl.duoc.huertoescolar.model.EstadoSector
+import cl.duoc.huertoescolar.domain.model.EstadoSector
 import cl.duoc.huertoescolar.ui.components.CampoDesplegable
 import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
 import cl.duoc.huertoescolar.util.crearUriFotografia
 import cl.duoc.huertoescolar.util.etiqueta
-import cl.duoc.huertoescolar.viewmodel.Fabrica
-import cl.duoc.huertoescolar.viewmodel.SectorUiState
-import cl.duoc.huertoescolar.viewmodel.SectorViewModel
+import cl.duoc.huertoescolar.ui.viewmodel.Fabrica
+import cl.duoc.huertoescolar.ui.viewmodel.SectorUiState
+import cl.duoc.huertoescolar.ui.viewmodel.SectorViewModel
 import coil3.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)

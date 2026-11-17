@@ -1,6 +1,7 @@
 package cl.duoc.huertoescolar.data
 
-import cl.duoc.huertoescolar.model.Sector
+import cl.duoc.huertoescolar.data.local.SectorDao
+import cl.duoc.huertoescolar.domain.model.Sector
 import kotlinx.coroutines.flow.Flow
 
 class SectorRepository(

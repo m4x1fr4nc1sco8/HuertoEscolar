@@ -37,8 +37,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.ui.theme.HuertoEscolarTheme
-import cl.duoc.huertoescolar.viewmodel.Fabrica
-import cl.duoc.huertoescolar.viewmodel.RegistroViewModel
+import cl.duoc.huertoescolar.ui.viewmodel.Fabrica
+import cl.duoc.huertoescolar.ui.viewmodel.RegistroViewModel
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn

@@ -1,6 +1,6 @@
-package cl.duoc.huertoescolar.viewmodel
+package cl.duoc.huertoescolar.ui.viewmodel
 
-import cl.duoc.huertoescolar.model.EstadoSector
+import cl.duoc.huertoescolar.domain.model.EstadoSector
 
 data class SectorUiState(
     // null = creando un sector nuevo; con valor = editando ese sector

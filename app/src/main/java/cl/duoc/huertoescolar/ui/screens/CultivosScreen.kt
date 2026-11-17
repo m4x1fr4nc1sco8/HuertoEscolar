@@ -58,17 +58,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cl.duoc.huertoescolar.data.SesionActual
-import cl.duoc.huertoescolar.model.Cultivo
-import cl.duoc.huertoescolar.model.EstadoCultivo
-import cl.duoc.huertoescolar.model.EstadoTarea
-import cl.duoc.huertoescolar.model.Rol
+import cl.duoc.huertoescolar.data.session.SesionActual
+import cl.duoc.huertoescolar.domain.model.Cultivo
+import cl.duoc.huertoescolar.domain.model.EstadoCultivo
+import cl.duoc.huertoescolar.domain.model.EstadoTarea
+import cl.duoc.huertoescolar.domain.model.Rol
 import cl.duoc.huertoescolar.ui.components.CampoDesplegable
 import cl.duoc.huertoescolar.util.crearUriFotografia
 import cl.duoc.huertoescolar.util.etiqueta
 import cl.duoc.huertoescolar.util.guardarFotoPermanente
-import cl.duoc.huertoescolar.viewmodel.CultivosViewModel
-import cl.duoc.huertoescolar.viewmodel.Fabrica
+import cl.duoc.huertoescolar.ui.viewmodel.CultivosViewModel
+import cl.duoc.huertoescolar.ui.viewmodel.Fabrica
 // Si AsyncImage sale en rojo, usa el mismo import que tienes en SectoresScreen
 // (coil3.compose.AsyncImage o coil.compose.AsyncImage).
 import coil3.compose.AsyncImage

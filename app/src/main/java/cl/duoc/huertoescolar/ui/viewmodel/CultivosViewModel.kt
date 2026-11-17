@@ -1,12 +1,12 @@
-package cl.duoc.huertoescolar.viewmodel
+package cl.duoc.huertoescolar.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cl.duoc.huertoescolar.data.CultivoRepository
-import cl.duoc.huertoescolar.data.SesionActual
-import cl.duoc.huertoescolar.model.Cultivo
-import cl.duoc.huertoescolar.model.EstadoCultivo
-import cl.duoc.huertoescolar.model.Rol
+import cl.duoc.huertoescolar.data.session.SesionActual
+import cl.duoc.huertoescolar.domain.model.Cultivo
+import cl.duoc.huertoescolar.domain.model.EstadoCultivo
+import cl.duoc.huertoescolar.domain.model.Rol
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

@@ -1,12 +1,12 @@
-package cl.duoc.huertoescolar.data
+package cl.duoc.huertoescolar.data.local
 
 import android.content.Context
 import androidx.room3.Database
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import cl.duoc.huertoescolar.model.Cultivo
-import cl.duoc.huertoescolar.model.Sector
-import cl.duoc.huertoescolar.model.Usuario
+import cl.duoc.huertoescolar.domain.model.Cultivo
+import cl.duoc.huertoescolar.domain.model.Sector
+import cl.duoc.huertoescolar.domain.model.Usuario
 
 @Database(entities = [Usuario::class, Sector::class, Cultivo::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {

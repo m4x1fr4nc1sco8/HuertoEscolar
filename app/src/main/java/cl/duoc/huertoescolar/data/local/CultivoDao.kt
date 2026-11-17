@@ -1,9 +1,9 @@
-package cl.duoc.huertoescolar.data
+package cl.duoc.huertoescolar.data.local
 
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.Query
-import cl.duoc.huertoescolar.model.Cultivo
+import cl.duoc.huertoescolar.domain.model.Cultivo
 import kotlinx.coroutines.flow.Flow
 
 @Dao

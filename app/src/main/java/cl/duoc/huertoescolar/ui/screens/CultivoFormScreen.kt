@@ -34,12 +34,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cl.duoc.huertoescolar.model.EstadoCultivo
+import cl.duoc.huertoescolar.domain.model.EstadoCultivo
 import cl.duoc.huertoescolar.ui.components.CampoDesplegable
 import cl.duoc.huertoescolar.ui.components.CampoTexto
 import cl.duoc.huertoescolar.util.etiqueta
-import cl.duoc.huertoescolar.viewmodel.CultivoViewModel
-import cl.duoc.huertoescolar.viewmodel.Fabrica
+import cl.duoc.huertoescolar.ui.viewmodel.CultivoViewModel
+import cl.duoc.huertoescolar.ui.viewmodel.Fabrica
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

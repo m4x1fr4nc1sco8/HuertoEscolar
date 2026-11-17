@@ -1,4 +1,4 @@
-package cl.duoc.huertoescolar.model
+package cl.duoc.huertoescolar.domain.model
 
 enum class Rol { ADMINISTRADOR, ESTUDIANTE }
 

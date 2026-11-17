@@ -1,7 +1,8 @@
 package cl.duoc.huertoescolar.data
 
-import cl.duoc.huertoescolar.model.Rol
-import cl.duoc.huertoescolar.model.Usuario
+import cl.duoc.huertoescolar.data.local.UsuarioDao
+import cl.duoc.huertoescolar.domain.model.Rol
+import cl.duoc.huertoescolar.domain.model.Usuario
 import kotlinx.coroutines.flow.Flow
 
 class UsuarioRepository(

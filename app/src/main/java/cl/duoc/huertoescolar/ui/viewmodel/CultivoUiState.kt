@@ -1,6 +1,6 @@
-package cl.duoc.huertoescolar.viewmodel
+package cl.duoc.huertoescolar.ui.viewmodel
 
-import cl.duoc.huertoescolar.model.EstadoCultivo
+import cl.duoc.huertoescolar.domain.model.EstadoCultivo
 
 data class CultivoUiState(
     val nombre: String = "",

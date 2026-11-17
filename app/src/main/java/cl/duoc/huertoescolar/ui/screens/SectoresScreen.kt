@@ -40,9 +40,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cl.duoc.huertoescolar.model.EstadoSector
-import cl.duoc.huertoescolar.viewmodel.Fabrica
-import cl.duoc.huertoescolar.viewmodel.SectoresViewModel
+import cl.duoc.huertoescolar.domain.model.EstadoSector
+import cl.duoc.huertoescolar.ui.viewmodel.Fabrica
+import cl.duoc.huertoescolar.ui.viewmodel.SectoresViewModel
 import coil3.compose.AsyncImage
 
 private fun textoEstado(estado: String): String = when (estado) {

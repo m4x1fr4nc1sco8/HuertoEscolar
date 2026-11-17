@@ -12,8 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import cl.duoc.huertoescolar.data.SesionActual
-import cl.duoc.huertoescolar.model.Rol
+import cl.duoc.huertoescolar.data.session.SesionActual
+import cl.duoc.huertoescolar.domain.model.Rol
 import cl.duoc.huertoescolar.ui.screens.AccesoDenegadoScreen
 import cl.duoc.huertoescolar.ui.screens.CultivoFormScreen
 import cl.duoc.huertoescolar.ui.screens.CultivosScreen
