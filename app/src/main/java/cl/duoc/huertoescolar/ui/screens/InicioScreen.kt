@@ -29,8 +29,11 @@ import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Grass
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -58,7 +61,9 @@ private data class OpcionMenu(
     val icono: ImageVector,
     val colorFondo: Color,
     val colorContenido: Color,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
+    // Numerito rojo sobre el ícono (0 = no se muestra)
+    val insignia: Int = 0
 )
 
 @Composable
@@ -72,12 +77,21 @@ fun InicioScreen(
     onIrARegistro: () -> Unit,
     onIrAUsuarios: () -> Unit,
     onIrAServidor: () -> Unit,
+    cantidadAlertas: Int = 0,
+    onIrAAlertas: () -> Unit = {},
     onCerrarSesion: () -> Unit
 ) {
     val colores = MaterialTheme.colorScheme
 
     // Las opciones se arman según el rol (mismas reglas que antes)
     val opciones = buildList {
+        add(
+            OpcionMenu(
+                "Alertas", "Ver", Icons.Filled.Notifications,
+                colores.secondaryContainer, colores.onSecondaryContainer, onIrAAlertas,
+                insignia = cantidadAlertas
+            )
+        )
         if (esAdministrador) {
             add(
                 OpcionMenu(
@@ -245,18 +259,28 @@ private fun TarjetaMenu(opcion: OpcionMenu) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .background(opcion.colorContenido.copy(alpha = 0.12f), CircleShape),
-                contentAlignment = Alignment.Center
+            BadgedBox(
+                badge = {
+                    if (opcion.insignia > 0) {
+                        Badge {
+                            Text(if (opcion.insignia > 99) "99+" else opcion.insignia.toString())
+                        }
+                    }
+                }
             ) {
-                Icon(
-                    imageVector = opcion.icono,
-                    contentDescription = null,
-                    tint = opcion.colorContenido,
-                    modifier = Modifier.size(26.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(opcion.colorContenido.copy(alpha = 0.12f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = opcion.icono,
+                        contentDescription = null,
+                        tint = opcion.colorContenido,
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
             }
             Text(
                 text = opcion.titulo,

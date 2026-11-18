@@ -7,6 +7,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,6 +16,7 @@ import androidx.navigation.navArgument
 import cl.duoc.huertoescolar.data.session.SesionActual
 import cl.duoc.huertoescolar.domain.model.Rol
 import cl.duoc.huertoescolar.ui.screens.AccesoDenegadoScreen
+import cl.duoc.huertoescolar.ui.screens.AlertasScreen
 import cl.duoc.huertoescolar.ui.screens.CultivoFormScreen
 import cl.duoc.huertoescolar.ui.screens.CultivosScreen
 import cl.duoc.huertoescolar.ui.screens.InicioScreen
@@ -24,6 +26,8 @@ import cl.duoc.huertoescolar.ui.screens.SectorFormScreen
 import cl.duoc.huertoescolar.ui.screens.SectoresScreen
 import cl.duoc.huertoescolar.ui.screens.SectoresServidorScreen
 import cl.duoc.huertoescolar.ui.screens.UsuariosScreen
+import cl.duoc.huertoescolar.ui.viewmodel.AlertasViewModel
+import cl.duoc.huertoescolar.ui.viewmodel.Fabrica
 
 @Composable
 fun Navegacion() {
@@ -31,6 +35,10 @@ fun Navegacion() {
     val usuarioActual by SesionActual.usuario.collectAsStateWithLifecycle()
     val esAdministrador = usuarioActual?.tipoUsuario == Rol.ADMINISTRADOR.name
     val volver: () -> Unit = { navController.popBackStack() }
+
+    // Cantidad de alertas activas, para el numerito de la tarjeta "Alertas" del inicio
+    val alertasViewModel: AlertasViewModel = viewModel(factory = Fabrica.alertas)
+    val alertas by alertasViewModel.alertas.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,
@@ -75,6 +83,8 @@ fun Navegacion() {
                 onIrARegistro = { navController.navigate(Rutas.REGISTRO) },
                 onIrAUsuarios = { navController.navigate(Rutas.USUARIOS) },
                 onIrAServidor = { navController.navigate(Rutas.SECTORES_SERVIDOR) },
+                cantidadAlertas = alertas.size,
+                onIrAAlertas = { navController.navigate(Rutas.ALERTAS) },
                 onCerrarSesion = {
                     SesionActual.cerrar()
                     navController.navigate(Rutas.LOGIN) {
@@ -123,6 +133,9 @@ fun Navegacion() {
                 onNuevoCultivo = { navController.navigate(Rutas.CULTIVO_FORM) },
                 puedeCrear = esAdministrador
             )
+        }
+        composable(Rutas.ALERTAS) {
+            AlertasScreen(onVolver = volver)
         }
         composable(Rutas.SECTORES_SERVIDOR) {
             SoloAdministrador(esAdministrador, volver) {

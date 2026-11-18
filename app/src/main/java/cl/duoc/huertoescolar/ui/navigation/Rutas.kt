@@ -17,6 +17,8 @@ object Rutas {
 
     const val SECTORES_SERVIDOR = "sectores_servidor"
 
+    const val ALERTAS = "alertas"
+
     const val SECTOR_EDITAR = "sector_editar/{sectorId}"
 
     fun sectorEditar(id: Int) = "sector_editar/$id"

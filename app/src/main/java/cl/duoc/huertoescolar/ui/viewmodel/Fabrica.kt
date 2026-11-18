@@ -43,6 +43,10 @@ object Fabrica {
         initializer { CultivosViewModel(aplicacion().cultivoRepository()) }
     }
 
+    val alertas = viewModelFactory {
+        initializer { AlertasViewModel(aplicacion().cultivoRepository()) }
+    }
+
     val sector = viewModelFactory {
         initializer {
             val app = aplicacion()

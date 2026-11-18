@@ -123,11 +123,11 @@ class CultivoRepositoryTest {
     fun marcarComoRealizada_cultivoDelEstudiante_retornaTrue() = runTest {
         // ARRANGE
         coEvery {
-            dao.enviarARevision(1, 2, "file:/foto.jpg", "PENDIENTE_DE_VALIDACION")
+            dao.enviarARevision(1, 2, "file:/foto.jpg", "Ya regué", "PENDIENTE_DE_VALIDACION")
         } returns 1
 
         // ACT
-        val ok = repositorio.marcarComoRealizada(1, 2, "file:/foto.jpg")
+        val ok = repositorio.marcarComoRealizada(1, 2, "file:/foto.jpg", "Ya regué")
 
         // ASSERT
         assertTrue(ok)
@@ -137,14 +137,31 @@ class CultivoRepositoryTest {
     fun marcarComoRealizada_cultivoDeOtroEstudiante_retornaFalse() = runTest {
         // ARRANGE
         coEvery {
-            dao.enviarARevision(1, 99, "file:/foto.jpg", "PENDIENTE_DE_VALIDACION")
+            dao.enviarARevision(1, 99, "file:/foto.jpg", "Ya regué", "PENDIENTE_DE_VALIDACION")
         } returns 0
 
         // ACT
-        val ok = repositorio.marcarComoRealizada(1, 99, "file:/foto.jpg")
+        val ok = repositorio.marcarComoRealizada(1, 99, "file:/foto.jpg", "Ya regué")
 
         // ASSERT
         assertFalse(ok)
+    }
+
+    @Test
+    fun marcarComoRealizada_comentarioConEspacios_loGuardaSinEspacios() = runTest {
+        // ARRANGE
+        coEvery {
+            dao.enviarARevision(1, 2, "file:/foto.jpg", "listo el riego", "PENDIENTE_DE_VALIDACION")
+        } returns 1
+
+        // ACT
+        val ok = repositorio.marcarComoRealizada(1, 2, "file:/foto.jpg", "  listo el riego  ")
+
+        // ASSERT
+        assertTrue(ok)
+        coVerify(exactly = 1) {
+            dao.enviarARevision(1, 2, "file:/foto.jpg", "listo el riego", "PENDIENTE_DE_VALIDACION")
+        }
     }
 
     @Test
