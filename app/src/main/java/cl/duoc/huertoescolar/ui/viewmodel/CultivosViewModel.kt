@@ -2,7 +2,7 @@ package cl.duoc.huertoescolar.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.duoc.huertoescolar.data.CultivoRepository
+import cl.duoc.huertoescolar.data.repository.CultivoRepository
 import cl.duoc.huertoescolar.data.session.SesionActual
 import cl.duoc.huertoescolar.domain.model.Cultivo
 import cl.duoc.huertoescolar.domain.model.EstadoCultivo

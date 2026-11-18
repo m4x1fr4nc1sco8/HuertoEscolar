@@ -2,7 +2,7 @@ package cl.duoc.huertoescolar.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.duoc.huertoescolar.data.remote.SectoresRemoteRepository
+import cl.duoc.huertoescolar.data.repository.SectoresRemoteRepository
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

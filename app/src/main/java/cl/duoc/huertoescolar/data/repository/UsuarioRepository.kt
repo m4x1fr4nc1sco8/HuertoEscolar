@@ -1,4 +1,4 @@
-package cl.duoc.huertoescolar.data
+package cl.duoc.huertoescolar.data.repository
 
 import cl.duoc.huertoescolar.data.local.UsuarioDao
 import cl.duoc.huertoescolar.domain.model.Rol

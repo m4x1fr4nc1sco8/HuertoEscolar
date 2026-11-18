@@ -13,9 +13,14 @@ room = "3.0.3"
 ksp = "2.3.4"
 coil = "3.3.0"
 retrofit = "3.0.0"
+kover = "0.9.11"
+mockk = "1.14.11"
+coroutines = "1.10.2"
 
 
 [libraries]
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 androidx-room-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room" }
@@ -44,4 +49,5 @@ retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 

@@ -2,7 +2,7 @@ package cl.duoc.huertoescolar.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.duoc.huertoescolar.data.UsuarioRepository
+import cl.duoc.huertoescolar.data.repository.UsuarioRepository
 import cl.duoc.huertoescolar.domain.model.Usuario
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

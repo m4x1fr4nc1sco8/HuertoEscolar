@@ -3,7 +3,7 @@ package cl.duoc.huertoescolar.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cl.duoc.huertoescolar.data.session.SesionActual
-import cl.duoc.huertoescolar.data.UsuarioRepository
+import cl.duoc.huertoescolar.data.repository.UsuarioRepository
 import cl.duoc.huertoescolar.domain.validation.Validaciones
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

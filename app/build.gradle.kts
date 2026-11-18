@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kover)
 }
 
 android {
@@ -57,10 +58,27 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+kover {
+    reports {
+        filters {
+            includes {
+                classes(
+                    "cl.duoc.huertoescolar.domain.validation.*",
+                    "cl.duoc.huertoescolar.data.repository.*",
+                    "cl.duoc.huertoescolar.data.session.SesionActual*",
+                    "cl.duoc.huertoescolar.ui.viewmodel.*ViewModel*"
+                )
+            }
+        }
+    }
 }
