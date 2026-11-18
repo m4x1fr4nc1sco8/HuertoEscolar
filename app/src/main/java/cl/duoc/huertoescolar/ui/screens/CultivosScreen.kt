@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -65,6 +66,7 @@ import cl.duoc.huertoescolar.domain.model.EstadoTarea
 import cl.duoc.huertoescolar.domain.model.Rol
 import cl.duoc.huertoescolar.ui.components.CampoDesplegable
 import cl.duoc.huertoescolar.util.crearUriFotografia
+import cl.duoc.huertoescolar.util.estaAtrasada
 import cl.duoc.huertoescolar.util.etiqueta
 import cl.duoc.huertoescolar.util.guardarFotoPermanente
 import cl.duoc.huertoescolar.ui.viewmodel.CultivosViewModel
@@ -94,6 +96,11 @@ fun CultivosScreen(
     var cultivoEnCaptura by rememberSaveable { mutableStateOf<Int?>(null) }
     var uriTemporal by rememberSaveable { mutableStateOf<Uri?>(null) }
 
+    // Cultivo cuyo comentario escribe el estudiante (abre el diálogo)
+    var cultivoAComentar by rememberSaveable { mutableStateOf<Int?>(null) }
+    // Comentario ya validado, a la espera de que se tome la foto
+    var comentarioEnCaptura by rememberSaveable { mutableStateOf("") }
+
     // Cultivo que el admin está por rechazar (abre el diálogo del motivo)
     var cultivoARechazar by rememberSaveable { mutableStateOf<Int?>(null) }
 
@@ -110,13 +117,14 @@ fun CultivosScreen(
                 prefijo = "cultivo_"
             )
             if (rutaFinal != null) {
-                viewModel.marcarComoRealizada(id, rutaFinal)
+                viewModel.marcarComoRealizada(id, rutaFinal, comentarioEnCaptura)
             } else {
                 viewModel.informar("No se pudo guardar la foto. Intenta de nuevo.")
             }
         }
         cultivoEnCaptura = null
         uriTemporal = null
+        comentarioEnCaptura = ""
     }
 
     LaunchedEffect(mensaje) {
@@ -137,6 +145,29 @@ fun CultivosScreen(
             onCancelar = {
                 viewModel.limpiarErrorMotivo()
                 cultivoARechazar = null
+            }
+        )
+    }
+
+    val errorComentario by viewModel.errorComentario.collectAsStateWithLifecycle()
+    cultivoAComentar?.let { id ->
+        DialogoComentario(
+            error = errorComentario,
+            onComentarioCambiado = { viewModel.limpiarErrorComentario() },
+            onConfirmar = { comentario ->
+                if (viewModel.validarComentario(comentario)) {
+                    // Comentario válido: ahora se toma la foto de respaldo
+                    comentarioEnCaptura = comentario.trim()
+                    val uri = crearUriFotografia(contexto)
+                    uriTemporal = uri
+                    cultivoEnCaptura = id
+                    cultivoAComentar = null
+                    lanzadorCamara.launch(uri)
+                }
+            },
+            onCancelar = {
+                viewModel.limpiarErrorComentario()
+                cultivoAComentar = null
             }
         )
     }
@@ -202,12 +233,7 @@ fun CultivosScreen(
                         onCambiarEstado = { viewModel.cambiarEstado(cultivo.id, it) },
                         onValidar = { viewModel.validar(cultivo.id) },
                         onRechazar = { cultivoARechazar = cultivo.id },
-                        onTomarFoto = {
-                            val uri = crearUriFotografia(contexto)
-                            uriTemporal = uri
-                            cultivoEnCaptura = cultivo.id
-                            lanzadorCamara.launch(uri)
-                        },
+                        onMarcarRealizada = { cultivoAComentar = cultivo.id },
                         modifier = Modifier.animateItem()
                     )
                 }
@@ -224,7 +250,7 @@ private fun TarjetaCultivo(
     onCambiarEstado: (EstadoCultivo) -> Unit,
     onValidar: () -> Unit,
     onRechazar: () -> Unit,
-    onTomarFoto: () -> Unit,
+    onMarcarRealizada: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estadoTarea = EstadoTarea.entries.firstOrNull { it.name == cultivo.estadoTarea }
@@ -233,11 +259,18 @@ private fun TarjetaCultivo(
             !cultivo.motivoRechazo.isNullOrBlank()
     val puedeEnviar = esEstudiante && estadoTarea == EstadoTarea.PENDIENTE
     val estadoCultivo = EstadoCultivo.entries.firstOrNull { it.name == cultivo.estado }
+    // HU18: pendiente y con la fecha límite vencida
+    val atrasada = cultivo.estaAtrasada()
+    val estadoMostrado = if (atrasada) EstadoTarea.ATRASADA else estadoTarea
 
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = if (atrasada) {
+                MaterialTheme.colorScheme.errorContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -262,6 +295,12 @@ private fun TarjetaCultivo(
                 text = "Riego: cada ${cultivo.frecuenciaRiegoDias} días",
                 style = MaterialTheme.typography.bodySmall
             )
+            if (!cultivo.fechaLimite.isNullOrBlank()) {
+                Text(
+                    text = "Fecha límite de la tarea: ${cultivo.fechaLimite}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
             if (esAdministrador) {
                 // HU08: el administrador elige el nuevo estado desde un menú desplegable
                 Spacer(Modifier.height(8.dp))
@@ -280,18 +319,44 @@ private fun TarjetaCultivo(
             }
 
             Spacer(Modifier.height(8.dp))
-            Text(
-                text = "Tarea: ${estadoTarea.etiqueta()}",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
+            if (atrasada) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "Tarea: ${estadoMostrado.etiqueta()} (la fecha límite ya pasó)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
+            } else {
+                Text(
+                    text = "Tarea: ${estadoMostrado.etiqueta()}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
             if (fueRechazado) {
                 Text(
                     text = "Rechazada por el administrador: ${cultivo.motivoRechazo}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            // HU12: el comentario enviado se ve mientras la tarea no esté pendiente de nuevo
+            if (estadoTarea != EstadoTarea.PENDIENTE && !cultivo.comentarioEstudiante.isNullOrBlank()) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "Comentario del estudiante: ${cultivo.comentarioEstudiante}",
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
 
@@ -311,7 +376,7 @@ private fun TarjetaCultivo(
             if (puedeEnviar) {
                 Spacer(Modifier.height(12.dp))
                 Button(
-                    onClick = onTomarFoto,
+                    onClick = onMarcarRealizada,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(Icons.Default.PhotoCamera, contentDescription = null)
@@ -385,6 +450,49 @@ private fun DialogoRechazo(
         confirmButton = {
             TextButton(onClick = { onConfirmar(motivo) }) {
                 Text("Rechazar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancelar) { Text("Cancelar") }
+        }
+    )
+}
+
+@Composable
+private fun DialogoComentario(
+    error: String?,
+    onComentarioCambiado: () -> Unit,
+    onConfirmar: (String) -> Unit,
+    onCancelar: () -> Unit
+) {
+    var comentario by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onCancelar,
+        title = { Text("Marcar tarea como realizada") },
+        text = {
+            OutlinedTextField(
+                value = comentario,
+                onValueChange = {
+                    comentario = it
+                    onComentarioCambiado()
+                },
+                label = { Text("Comentario") },
+                placeholder = { Text("Ej: regué los surcos y retiré las malezas") },
+                isError = error != null,
+                trailingIcon = {
+                    if (error != null) {
+                        Icon(Icons.Default.Error, contentDescription = "Error")
+                    }
+                },
+                supportingText = { error?.let { Text(it) } },
+                minLines = 2,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirmar(comentario) }) {
+                Text("Continuar con la foto")
             }
         },
         dismissButton = {

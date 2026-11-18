@@ -20,5 +20,8 @@ data class Cultivo(
     @ColumnInfo(defaultValue = "'PENDIENTE'")
     val estadoTarea: String = EstadoTarea.PENDIENTE.name,
     val fotoUri: String? = null,
-    val motivoRechazo: String? = null
+    val motivoRechazo: String? = null,
+
+    val fechaLimite: String? = null,
+    val comentarioEstudiante: String? = null
 )

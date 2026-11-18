@@ -77,6 +77,10 @@ class CultivoViewModel(
         _uiState.update { it.copy(fechaCosecha = valor, errorCosecha = null) }
     }
 
+    fun cambiarLimite(valor: String) {
+        _uiState.update { it.copy(fechaLimite = valor, errorLimite = null) }
+    }
+
     fun cambiarRiego(valor: String) {
         _uiState.update { it.copy(frecuenciaRiego = valor, errorRiego = null) }
     }
@@ -101,6 +105,7 @@ class CultivoViewModel(
             sectorId = sectorId,
             fechaSiembra = estado.fechaSiembra.trim(),
             fechaCosecha = estado.fechaCosecha.trim(),
+            fechaLimite = estado.fechaLimite.trim(),
             frecuenciaRiegoDias = estado.frecuenciaRiego.toInt(),
             estado = estado.estado.name,
             estudianteId = estudianteId
@@ -119,6 +124,7 @@ class CultivoViewModel(
             estado.fechaSiembra, estado.fechaCosecha
         )
         val rRiego = Validaciones.validarFrecuenciaRiego(estado.frecuenciaRiego)
+        val rLimite = Validaciones.validarFecha(estado.fechaLimite, "La fecha límite")
 
         _uiState.update {
             it.copy(
@@ -127,13 +133,14 @@ class CultivoViewModel(
                 errorEstudiante = if (estado.estudianteId == null) "Selecciona un estudiante" else null,
                 errorSiembra = rSiembra.mensaje,
                 errorCosecha = rCosecha.mensaje,
+                errorLimite = rLimite.mensaje,
                 errorRiego = rRiego.mensaje,
                 mensaje = ""
             )
         }
 
         return rNombre.esValido && rSiembra.esValido &&
-                rCosecha.esValido && rRiego.esValido &&
+                rCosecha.esValido && rRiego.esValido && rLimite.esValido &&
                 estado.sectorId != null && estado.estudianteId != null
     }
 }

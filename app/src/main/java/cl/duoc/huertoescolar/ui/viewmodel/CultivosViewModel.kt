@@ -7,6 +7,7 @@ import cl.duoc.huertoescolar.data.session.SesionActual
 import cl.duoc.huertoescolar.domain.model.Cultivo
 import cl.duoc.huertoescolar.domain.model.EstadoCultivo
 import cl.duoc.huertoescolar.domain.model.Rol
+import cl.duoc.huertoescolar.domain.validation.Validaciones
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -41,10 +42,29 @@ class CultivosViewModel(
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
 
-    fun marcarComoRealizada(cultivoId: Int, fotoUri: String) {
+    private val _errorComentario = MutableStateFlow<String?>(null)
+    val errorComentario: StateFlow<String?> = _errorComentario.asStateFlow()
+
+    fun limpiarErrorComentario() {
+        _errorComentario.value = null
+    }
+
+    // Estudiante: revisa que el comentario no esté vacío antes de abrir la cámara.
+    // Devuelve true si es válido.
+    fun validarComentario(comentario: String): Boolean {
+        val resultado = Validaciones.validarObligatorio(comentario, "El comentario")
+        _errorComentario.value = resultado.mensaje
+        return resultado.esValido
+    }
+
+    fun marcarComoRealizada(cultivoId: Int, fotoUri: String, comentario: String) {
         val usuario = sesion.usuario.value ?: return
+        if (comentario.isBlank()) {
+            _mensaje.value = "Escribe un comentario para enviar la tarea."
+            return
+        }
         viewModelScope.launch {
-            val ok = repository.marcarComoRealizada(cultivoId, usuario.id, fotoUri)
+            val ok = repository.marcarComoRealizada(cultivoId, usuario.id, fotoUri, comentario)
             _mensaje.value = if (ok) {
                 "Tarea enviada. Queda pendiente de validación."
             } else {

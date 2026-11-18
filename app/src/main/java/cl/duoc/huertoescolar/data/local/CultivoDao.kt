@@ -27,16 +27,18 @@ interface CultivoDao {
     @Query("SELECT * FROM cultivos WHERE estadoTarea = :estadoTarea ORDER BY id DESC")
     fun obtenerPorEstadoTarea(estadoTarea: String): Flow<List<Cultivo>>
 
-    // El estudiante envía la foto. Solo afecta si el cultivo es suyo.
+    // El estudiante envía la foto y su comentario. Solo afecta si el cultivo es suyo.
     // Devuelve la cantidad de filas actualizadas (0 = no se pudo).
     @Query(
         "UPDATE cultivos SET estadoTarea = :nuevoEstado, fotoUri = :fotoUri, " +
-                "motivoRechazo = NULL WHERE id = :id AND estudianteId = :estudianteId"
+                "comentarioEstudiante = :comentario, motivoRechazo = NULL " +
+                "WHERE id = :id AND estudianteId = :estudianteId"
     )
     suspend fun enviarARevision(
         id: Int,
         estudianteId: Int,
         fotoUri: String,
+        comentario: String,
         nuevoEstado: String
     ): Int
 

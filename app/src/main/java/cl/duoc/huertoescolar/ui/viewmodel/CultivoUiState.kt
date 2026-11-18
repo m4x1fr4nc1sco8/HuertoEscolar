@@ -10,6 +10,7 @@ data class CultivoUiState(
     val estudianteTexto: String = "",
     val fechaSiembra: String = "",
     val fechaCosecha: String = "",
+    val fechaLimite: String = "",
     val frecuenciaRiego: String = "",
     val estado: EstadoCultivo = EstadoCultivo.PLANIFICADO,
 
@@ -18,6 +19,7 @@ data class CultivoUiState(
     val errorEstudiante: String? = null,
     val errorSiembra: String? = null,
     val errorCosecha: String? = null,
+    val errorLimite: String? = null,
     val errorRiego: String? = null,
 
     val mensaje: String = ""

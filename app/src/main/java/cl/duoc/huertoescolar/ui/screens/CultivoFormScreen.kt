@@ -132,6 +132,15 @@ fun CultivoFormScreen(
             )
 
             CampoTexto(
+                valor = uiState.fechaLimite,
+                alCambiar = { viewModel.cambiarLimite(it) },
+                etiqueta = "Fecha límite de la tarea",
+                error = uiState.errorLimite,
+                placeholder = "dd/mm/aaaa",
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            CampoTexto(
                 valor = uiState.fechaSiembra,
                 alCambiar = { viewModel.cambiarSiembra(it) },
                 etiqueta = "Fecha de siembra",
@@ -198,3 +207,4 @@ fun CultivoFormScreen(
         }
     }
 }
+

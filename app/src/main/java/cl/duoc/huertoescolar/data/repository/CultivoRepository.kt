@@ -32,16 +32,18 @@ class CultivoRepository(
         return cultivoDao.obtenerPorEstadoTarea(EstadoTarea.PENDIENTE_DE_VALIDACION.name)
     }
 
-    // Estudiante: marca como realizada adjuntando la foto. true si se registró.
+    // Estudiante: marca como realizada adjuntando la foto y un comentario. true si se registró.
     suspend fun marcarComoRealizada(
         cultivoId: Int,
         estudianteId: Int,
-        fotoUri: String
+        fotoUri: String,
+        comentario: String
     ): Boolean {
         return cultivoDao.enviarARevision(
             id = cultivoId,
             estudianteId = estudianteId,
             fotoUri = fotoUri,
+            comentario = comentario.trim(),
             nuevoEstado = EstadoTarea.PENDIENTE_DE_VALIDACION.name
         ) > 0
     }
