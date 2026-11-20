@@ -74,8 +74,10 @@ kover {
             includes {
                 classes(
                     "cl.duoc.huertoescolar.domain.validation.*",
+                    "cl.duoc.huertoescolar.domain.alertas.*",
                     "cl.duoc.huertoescolar.data.repository.*",
                     "cl.duoc.huertoescolar.data.session.SesionActual*",
+                    "cl.duoc.huertoescolar.util.FechasKt*",
                     "cl.duoc.huertoescolar.ui.viewmodel.*ViewModel*"
                 )
             }
