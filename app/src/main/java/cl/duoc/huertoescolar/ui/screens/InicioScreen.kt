@@ -1,5 +1,7 @@
 package cl.duoc.huertoescolar.ui.screens
 
+import cl.duoc.huertoescolar.ui.components.TarjetaClima
+import cl.duoc.huertoescolar.ui.viewmodel.ClimaUiState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -81,6 +83,8 @@ fun InicioScreen(
     onIrAAlertas: () -> Unit = {},
     mensajeServidor: String? = null,
     onReintentar: () -> Unit = {},
+    estadoClima: ClimaUiState = ClimaUiState.Cargando,
+    onReintentarClima: () -> Unit = {},
     onCerrarSesion: () -> Unit
 ) {
     val colores = MaterialTheme.colorScheme
@@ -172,6 +176,11 @@ fun InicioScreen(
                     OutlinedButton(onClick = onReintentar) { Text("Reintentar") }
                 }
             }
+
+            TarjetaClima(
+                estado = estadoClima,
+                onReintentar = onReintentarClima
+            )
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),

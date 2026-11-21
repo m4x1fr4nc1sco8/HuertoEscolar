@@ -28,6 +28,7 @@ import cl.duoc.huertoescolar.ui.screens.SectoresScreen
 import cl.duoc.huertoescolar.ui.screens.SectoresServidorScreen
 import cl.duoc.huertoescolar.ui.screens.UsuariosScreen
 import cl.duoc.huertoescolar.ui.viewmodel.AlertasViewModel
+import cl.duoc.huertoescolar.ui.viewmodel.ClimaViewModel
 import cl.duoc.huertoescolar.ui.viewmodel.EstadoSincronizacion
 import cl.duoc.huertoescolar.ui.viewmodel.Fabrica
 import cl.duoc.huertoescolar.ui.viewmodel.SincronizacionViewModel
@@ -78,6 +79,8 @@ fun Navegacion() {
         composable(Rutas.INICIO) {
             val sincronizacion: SincronizacionViewModel = viewModel(factory = Fabrica.sincronizacion)
             val estadoSincronizacion by sincronizacion.estado.collectAsStateWithLifecycle()
+            val climaViewModel: ClimaViewModel = viewModel(factory = Fabrica.clima)
+            val estadoClima by climaViewModel.estado.collectAsStateWithLifecycle()
             // Al entrar al inicio se descargan los datos del servidor (sin conexión se usan los locales)
             LaunchedEffect(Unit) { sincronizacion.sincronizar() }
 
@@ -95,6 +98,8 @@ fun Navegacion() {
                 onIrAAlertas = { navController.navigate(Rutas.ALERTAS) },
                 mensajeServidor = (estadoSincronizacion as? EstadoSincronizacion.SinConexion)?.mensaje,
                 onReintentar = { sincronizacion.sincronizar() },
+                estadoClima = estadoClima,
+                onReintentarClima = { climaViewModel.cargar() },
                 onCerrarSesion = {
                     SesionActual.cerrar()
                     navController.navigate(Rutas.LOGIN) {

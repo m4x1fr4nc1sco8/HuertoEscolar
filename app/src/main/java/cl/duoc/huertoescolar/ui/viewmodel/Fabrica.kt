@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.duoc.huertoescolar.data.local.AppDatabase
 import cl.duoc.huertoescolar.data.remote.RetrofitClient
+import cl.duoc.huertoescolar.data.repository.ClimaRepository
 import cl.duoc.huertoescolar.data.repository.SectorRepository
 import cl.duoc.huertoescolar.data.repository.UsuarioRepository
 import cl.duoc.huertoescolar.util.guardarFotoPermanente
@@ -76,6 +77,10 @@ object Fabrica {
 
     val usuarios = viewModelFactory {
         initializer { UsuariosViewModel(aplicacion().usuarioRepository()) }
+    }
+
+    val clima = viewModelFactory {
+        initializer { ClimaViewModel(ClimaRepository(RetrofitClient.climaApi)) }
     }
 
     val sincronizacion = viewModelFactory {
