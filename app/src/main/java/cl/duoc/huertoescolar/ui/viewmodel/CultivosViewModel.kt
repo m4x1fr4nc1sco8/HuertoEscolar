@@ -2,6 +2,7 @@ package cl.duoc.huertoescolar.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cl.duoc.huertoescolar.data.remote.mensajeDeError
 import cl.duoc.huertoescolar.data.repository.CultivoRepository
 import cl.duoc.huertoescolar.data.session.SesionActual
 import cl.duoc.huertoescolar.domain.model.Cultivo
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 class CultivosViewModel(
     private val repository: CultivoRepository,
@@ -63,7 +65,7 @@ class CultivosViewModel(
             _mensaje.value = "Escribe un comentario para enviar la tarea."
             return
         }
-        viewModelScope.launch {
+        ejecutar {
             val ok = repository.marcarComoRealizada(cultivoId, usuario.id, fotoUri, comentario)
             _mensaje.value = if (ok) {
                 "Tarea enviada. Queda pendiente de validación."
@@ -79,7 +81,7 @@ class CultivosViewModel(
     // Admin: cambia el estado de desarrollo del cultivo (la lista se actualiza sola)
     fun cambiarEstado(cultivoId: Int, estado: EstadoCultivo) {
         if (!esAdministrador()) return
-        viewModelScope.launch {
+        ejecutar {
             val ok = repository.cambiarEstado(cultivoId, estado)
             _mensaje.value = if (ok) {
                 "Estado actualizado a: ${estado.name.lowercase().replace('_', ' ')}"
@@ -92,7 +94,7 @@ class CultivosViewModel(
     // Admin: valida la tarea enviada por el estudiante
     fun validar(cultivoId: Int) {
         if (!esAdministrador()) return
-        viewModelScope.launch {
+        ejecutar {
             val ok = repository.validar(cultivoId)
             _mensaje.value = if (ok) "Tarea validada." else "No se pudo validar la tarea."
         }
@@ -114,7 +116,7 @@ class CultivosViewModel(
             return false
         }
         _errorMotivo.value = null
-        viewModelScope.launch {
+        ejecutar {
             val ok = repository.rechazar(cultivoId, motivo)
             _mensaje.value = if (ok) {
                 "Tarea rechazada. El estudiante podrá reenviarla."
@@ -123,6 +125,28 @@ class CultivosViewModel(
             }
         }
         return true
+    }
+
+    // Admin: elimina el cultivo en el servidor y en el dispositivo
+    fun eliminar(cultivoId: Int) {
+        if (!esAdministrador()) return
+        ejecutar {
+            repository.eliminar(cultivoId)
+            _mensaje.value = "Cultivo eliminado."
+        }
+    }
+
+    // Ejecuta una operación contra el servidor; si falla, avisa con el mensaje del error
+    private fun ejecutar(operacion: suspend () -> Unit) {
+        viewModelScope.launch {
+            try {
+                operacion()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _mensaje.value = mensajeDeError(e)
+            }
+        }
     }
 
     fun informar(texto: String) {

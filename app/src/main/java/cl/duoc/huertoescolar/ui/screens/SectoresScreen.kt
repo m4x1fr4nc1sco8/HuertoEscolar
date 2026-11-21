@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +18,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,11 +29,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,6 +78,34 @@ fun SectoresScreen(
     viewModel: SectoresViewModel = viewModel(factory = Fabrica.sectores)
 ) {
     val sectores by viewModel.sectores.collectAsStateWithLifecycle()
+    val mensaje by viewModel.mensaje.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    // Sector que el administrador está por eliminar (abre la confirmación)
+    val sectorAEliminar = remember { mutableStateOf<Int?>(null) }
+
+    LaunchedEffect(mensaje) {
+        mensaje?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.mensajeMostrado()
+        }
+    }
+
+    sectorAEliminar.value?.let { id ->
+        AlertDialog(
+            onDismissRequest = { sectorAEliminar.value = null },
+            title = { Text("Eliminar sector") },
+            text = { Text("¿Seguro que quieres eliminar este sector? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.eliminar(id)
+                    sectorAEliminar.value = null
+                }) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { sectorAEliminar.value = null }) { Text("Cancelar") }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -90,6 +126,7 @@ fun SectoresScreen(
                 }
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             if (puedeCrear) {
                 FloatingActionButton(onClick = onNuevoSector) {
@@ -147,10 +184,17 @@ fun SectoresScreen(
                             )
                             // Solo el administrador puede modificar sectores
                             if (puedeCrear) {
-                                TextButton(onClick = { onEditarSector(sector.id) }) {
-                                    Icon(Icons.Default.Edit, contentDescription = null)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text("Editar")
+                                Row {
+                                    TextButton(onClick = { onEditarSector(sector.id) }) {
+                                        Icon(Icons.Default.Edit, contentDescription = null)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Editar")
+                                    }
+                                    TextButton(onClick = { sectorAEliminar.value = sector.id }) {
+                                        Icon(Icons.Default.Delete, contentDescription = null)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Eliminar")
+                                    }
                                 }
                             }
                         }

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.duoc.huertoescolar.data.local.AppDatabase
+import cl.duoc.huertoescolar.data.remote.RetrofitClient
 import cl.duoc.huertoescolar.data.repository.SectorRepository
 import cl.duoc.huertoescolar.data.repository.UsuarioRepository
 import cl.duoc.huertoescolar.util.guardarFotoPermanente
@@ -17,16 +18,16 @@ import kotlinx.coroutines.withContext
 object Fabrica {
 
     private fun Application.cultivoRepository() =
-        CultivoRepository(AppDatabase.getInstance(this).cultivoDao())
+        CultivoRepository(AppDatabase.getInstance(this).cultivoDao(), RetrofitClient.huertoApi)
 
     private fun CreationExtras.aplicacion(): Application =
         this[APPLICATION_KEY] as Application
 
     private fun Application.sectorRepository() =
-        SectorRepository(AppDatabase.getInstance(this).sectorDao())
+        SectorRepository(AppDatabase.getInstance(this).sectorDao(), RetrofitClient.huertoApi)
 
     private fun Application.usuarioRepository() =
-        UsuarioRepository(AppDatabase.getInstance(this).usuarioDao())
+        UsuarioRepository(AppDatabase.getInstance(this).usuarioDao(), RetrofitClient.huertoApi)
 
     val cultivo = viewModelFactory {
         initializer {
@@ -75,5 +76,16 @@ object Fabrica {
 
     val usuarios = viewModelFactory {
         initializer { UsuariosViewModel(aplicacion().usuarioRepository()) }
+    }
+
+    val sincronizacion = viewModelFactory {
+        initializer {
+            val app = aplicacion()
+            SincronizacionViewModel(
+                usuarioRepository = app.usuarioRepository(),
+                sectorRepository = app.sectorRepository(),
+                cultivoRepository = app.cultivoRepository()
+            )
+        }
     }
 }

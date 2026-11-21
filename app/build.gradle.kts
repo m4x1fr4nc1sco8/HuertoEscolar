@@ -78,7 +78,9 @@ kover {
                     "cl.duoc.huertoescolar.data.repository.*",
                     "cl.duoc.huertoescolar.data.session.SesionActual*",
                     "cl.duoc.huertoescolar.util.FechasKt*",
-                    "cl.duoc.huertoescolar.ui.viewmodel.*ViewModel*"
+                    "cl.duoc.huertoescolar.ui.viewmodel.*ViewModel*",
+                    "cl.duoc.huertoescolar.data.remote.MapeosKt*",
+                    "cl.duoc.huertoescolar.data.remote.ErroresApiKt*"
                 )
             }
         }

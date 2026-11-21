@@ -21,4 +21,14 @@ interface UsuarioDao {
 
     @Query("SELECT * FROM usuarios WHERE LOWER(correo) = LOWER(:correo) LIMIT 1")
     suspend fun buscarPorCorreo(correo: String): Usuario?
+
+    // --- Espejo del servidor (la app guarda en Room lo que descarga) ---
+    @Insert
+    suspend fun insertarTodos(lista: List<Usuario>)
+
+    @Query("DELETE FROM usuarios")
+    suspend fun eliminarTodos()
+
+    @Query("SELECT * FROM usuarios")
+    suspend fun listar(): List<Usuario>
 }

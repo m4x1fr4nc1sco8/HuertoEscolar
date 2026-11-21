@@ -2,6 +2,7 @@ package cl.duoc.huertoescolar.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cl.duoc.huertoescolar.data.remote.mensajeDeError
 import cl.duoc.huertoescolar.data.repository.CultivoRepository
 import cl.duoc.huertoescolar.data.repository.SectorRepository
 import cl.duoc.huertoescolar.data.repository.UsuarioRepository
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 class CultivoViewModel(
     private val repository: CultivoRepository,
@@ -111,8 +113,15 @@ class CultivoViewModel(
             estudianteId = estudianteId
         )
         viewModelScope.launch {
-            repository.guardar(cultivo)
-            _uiState.value = CultivoUiState(mensaje = "Cultivo guardado correctamente")
+            try {
+                repository.guardar(cultivo)
+                _uiState.value = CultivoUiState(mensaje = "Cultivo guardado correctamente")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Sin conexión o rechazado por el servidor: el formulario se conserva
+                _uiState.update { it.copy(mensaje = mensajeDeError(e)) }
+            }
         }
     }
 

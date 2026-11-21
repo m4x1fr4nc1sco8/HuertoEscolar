@@ -53,4 +53,14 @@ interface CultivoDao {
         nuevoEstado: String,
         motivo: String?
     ): Int
+
+    // --- Espejo del servidor (la app guarda en Room lo que descarga) ---
+    @Insert
+    suspend fun insertarTodos(lista: List<Cultivo>)
+
+    @Query("DELETE FROM cultivos")
+    suspend fun eliminarTodos()
+
+    @Query("DELETE FROM cultivos WHERE id = :id")
+    suspend fun eliminar(id: Int)
 }

@@ -2,6 +2,7 @@ package cl.duoc.huertoescolar.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cl.duoc.huertoescolar.data.remote.mensajeDeError
 import cl.duoc.huertoescolar.data.repository.SectorRepository
 import cl.duoc.huertoescolar.domain.model.EstadoSector
 import cl.duoc.huertoescolar.domain.model.Sector
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 class SectorViewModel(
     private val repository: SectorRepository,
@@ -88,16 +90,23 @@ class SectorViewModel(
         val fecha = fechaHoy()
 
         viewModelScope.launch {
-            if (existeCodigoDuplicado(estado)) {
-                _uiState.update { it.copy(errorCodigo = "Ya existe un sector con ese código") }
-                return@launch
-            }
-            val rutaFoto = estado.fotoUri?.let { prepararFoto(it) }
+            try {
+                if (existeCodigoDuplicado(estado)) {
+                    _uiState.update { it.copy(errorCodigo = "Ya existe un sector con ese código") }
+                    return@launch
+                }
+                val rutaFoto = estado.fotoUri?.let { prepararFoto(it) }
 
-            if (estado.id != null) {
-                actualizarSector(estado, estado.id, estadoSector, rutaFoto)
-            } else {
-                crearSector(estado, estadoSector, fecha, rutaFoto)
+                if (estado.id != null) {
+                    actualizarSector(estado, estado.id, estadoSector, rutaFoto)
+                } else {
+                    crearSector(estado, estadoSector, fecha, rutaFoto)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Sin conexión o rechazado por el servidor: el formulario se conserva
+                _uiState.update { it.copy(mensaje = mensajeDeError(e)) }
             }
         }
     }

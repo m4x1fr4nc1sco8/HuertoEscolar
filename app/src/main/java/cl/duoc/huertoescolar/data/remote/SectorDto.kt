@@ -6,5 +6,6 @@ data class SectorDto(
     val nombre: String,
     val ubicacion: String,
     val estado: String,
-    val fechaCreacion: String
+    val fechaCreacion: String,
+    val fotoUrl: String? = null
 )

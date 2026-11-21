@@ -1,15 +1,21 @@
 package cl.duoc.huertoescolar.data.repository
 
 import cl.duoc.huertoescolar.data.local.UsuarioDao
+import cl.duoc.huertoescolar.data.remote.HuertoApi
+import cl.duoc.huertoescolar.data.remote.aSolicitud
+import cl.duoc.huertoescolar.data.remote.aUsuario
 import cl.duoc.huertoescolar.domain.model.Rol
 import cl.duoc.huertoescolar.domain.model.Usuario
 import kotlinx.coroutines.flow.Flow
 
 class UsuarioRepository(
-    private val usuarioDao: UsuarioDao
+    private val usuarioDao: UsuarioDao,
+    private val api: HuertoApi
 ) {
+    // Registra al usuario en el servidor y guarda la copia con el id que le asignó
     suspend fun guardar(usuario: Usuario) {
-        usuarioDao.insertar(usuario)
+        val creado = api.crearUsuario(usuario.aSolicitud())
+        usuarioDao.insertar(usuario.copy(id = creado.id))
     }
 
     fun obtenerUsuarios(): Flow<List<Usuario>> {
@@ -50,5 +56,26 @@ class UsuarioRepository(
                 )
             )
         }
+    }
+
+    // Deja Room igual que el servidor (mismos ids) para que los cultivos apunten al
+    // estudiante correcto. La clave nunca viaja desde el servidor: se conserva la
+    // que ya había en el dispositivo (las cuentas solo del servidor quedan sin clave local).
+    suspend fun sincronizar() {
+        val remotos = api.obtenerUsuarios()
+        val locales = usuarioDao.listar()
+        val correosRemotos = remotos.map { it.correo.lowercase() }.toSet()
+
+        // Cuentas creadas solo en este dispositivo: se suben al servidor
+        val subidos = locales
+            .filter { it.correo.lowercase() !in correosRemotos }
+            .map { api.crearUsuario(it.aSolicitud()) }
+
+        val clavesLocales = locales.associate { it.correo.lowercase() to it.clave }
+        val espejo = (remotos + subidos).map { remoto ->
+            remoto.aUsuario(clave = clavesLocales[remoto.correo.lowercase()] ?: "")
+        }
+        usuarioDao.eliminarTodos()
+        usuarioDao.insertarTodos(espejo)
     }
 }

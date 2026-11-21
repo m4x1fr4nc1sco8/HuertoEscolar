@@ -79,6 +79,8 @@ fun InicioScreen(
     onIrAServidor: () -> Unit,
     cantidadAlertas: Int = 0,
     onIrAAlertas: () -> Unit = {},
+    mensajeServidor: String? = null,
+    onReintentar: () -> Unit = {},
     onCerrarSesion: () -> Unit
 ) {
     val colores = MaterialTheme.colorScheme
@@ -152,6 +154,24 @@ fun InicioScreen(
                 nombreUsuario = nombreUsuario,
                 esAdministrador = esAdministrador
             )
+
+            // Aviso cuando no se pudo sincronizar con el servidor
+            if (mensajeServidor != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "$mensajeServidor Se muestran los datos guardados en el dispositivo.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.weight(1f)
+                    )
+                    OutlinedButton(onClick = onReintentar) { Text("Reintentar") }
+                }
+            }
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),

@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Warning
@@ -104,6 +105,9 @@ fun CultivosScreen(
     // Cultivo que el admin está por rechazar (abre el diálogo del motivo)
     var cultivoARechazar by rememberSaveable { mutableStateOf<Int?>(null) }
 
+    // Cultivo que el admin está por eliminar (abre la confirmación)
+    var cultivoAEliminar by rememberSaveable { mutableStateOf<Int?>(null) }
+
     val lanzadorCamara = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { exito ->
@@ -132,6 +136,23 @@ fun CultivosScreen(
             snackbarHostState.showSnackbar(it)
             viewModel.mensajeMostrado()
         }
+    }
+
+    cultivoAEliminar?.let { id ->
+        AlertDialog(
+            onDismissRequest = { cultivoAEliminar = null },
+            title = { Text("Eliminar cultivo") },
+            text = { Text("¿Seguro que quieres eliminar este cultivo? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.eliminar(id)
+                    cultivoAEliminar = null
+                }) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { cultivoAEliminar = null }) { Text("Cancelar") }
+            }
+        )
     }
 
     val errorMotivo by viewModel.errorMotivo.collectAsStateWithLifecycle()
@@ -234,6 +255,7 @@ fun CultivosScreen(
                         onValidar = { viewModel.validar(cultivo.id) },
                         onRechazar = { cultivoARechazar = cultivo.id },
                         onMarcarRealizada = { cultivoAComentar = cultivo.id },
+                        onEliminar = { cultivoAEliminar = cultivo.id },
                         modifier = Modifier.animateItem()
                     )
                 }
@@ -251,6 +273,7 @@ private fun TarjetaCultivo(
     onValidar: () -> Unit,
     onRechazar: () -> Unit,
     onMarcarRealizada: () -> Unit,
+    onEliminar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estadoTarea = EstadoTarea.entries.firstOrNull { it.name == cultivo.estadoTarea }
@@ -410,6 +433,14 @@ private fun TarjetaCultivo(
                         Spacer(Modifier.width(8.dp))
                         Text("Validar")
                     }
+                }
+            }
+
+            if (esAdministrador) {
+                TextButton(onClick = onEliminar) {
+                    Icon(Icons.Default.Delete, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Eliminar cultivo")
                 }
             }
         }

@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,7 +28,9 @@ import cl.duoc.huertoescolar.ui.screens.SectoresScreen
 import cl.duoc.huertoescolar.ui.screens.SectoresServidorScreen
 import cl.duoc.huertoescolar.ui.screens.UsuariosScreen
 import cl.duoc.huertoescolar.ui.viewmodel.AlertasViewModel
+import cl.duoc.huertoescolar.ui.viewmodel.EstadoSincronizacion
 import cl.duoc.huertoescolar.ui.viewmodel.Fabrica
+import cl.duoc.huertoescolar.ui.viewmodel.SincronizacionViewModel
 
 @Composable
 fun Navegacion() {
@@ -73,6 +76,11 @@ fun Navegacion() {
             )
         }
         composable(Rutas.INICIO) {
+            val sincronizacion: SincronizacionViewModel = viewModel(factory = Fabrica.sincronizacion)
+            val estadoSincronizacion by sincronizacion.estado.collectAsStateWithLifecycle()
+            // Al entrar al inicio se descargan los datos del servidor (sin conexión se usan los locales)
+            LaunchedEffect(Unit) { sincronizacion.sincronizar() }
+
             InicioScreen(
                 nombreUsuario = usuarioActual?.nombre ?: "",
                 esAdministrador = esAdministrador,
@@ -85,6 +93,8 @@ fun Navegacion() {
                 onIrAServidor = { navController.navigate(Rutas.SECTORES_SERVIDOR) },
                 cantidadAlertas = alertas.size,
                 onIrAAlertas = { navController.navigate(Rutas.ALERTAS) },
+                mensajeServidor = (estadoSincronizacion as? EstadoSincronizacion.SinConexion)?.mensaje,
+                onReintentar = { sincronizacion.sincronizar() },
                 onCerrarSesion = {
                     SesionActual.cerrar()
                     navController.navigate(Rutas.LOGIN) {

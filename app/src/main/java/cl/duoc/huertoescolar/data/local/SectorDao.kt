@@ -38,4 +38,14 @@ interface SectorDao {
         estado: String,
         fotoUri: String?
     ): Int
+
+    // --- Espejo del servidor (la app guarda en Room lo que descarga) ---
+    @Insert
+    suspend fun insertarTodos(lista: List<Sector>)
+
+    @Query("DELETE FROM sectores")
+    suspend fun eliminarTodos()
+
+    @Query("DELETE FROM sectores WHERE id = :id")
+    suspend fun eliminar(id: Int)
 }

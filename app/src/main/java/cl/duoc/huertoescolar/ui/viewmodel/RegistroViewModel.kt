@@ -2,6 +2,7 @@ package cl.duoc.huertoescolar.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cl.duoc.huertoescolar.data.remote.mensajeDeError
 import cl.duoc.huertoescolar.data.repository.UsuarioRepository
 import cl.duoc.huertoescolar.domain.model.Rol
 import cl.duoc.huertoescolar.domain.model.Usuario
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 class RegistroViewModel(
     private val repository: UsuarioRepository
@@ -94,8 +96,15 @@ class RegistroViewModel(
                 tipoUsuario = tipo.name
             )
             viewModelScope.launch {
-                repository.guardar(usuario)
-                _uiState.value = RegistroUiState(mensaje = "Usuario registrado correctamente")
+                try {
+                    repository.guardar(usuario)
+                    _uiState.value = RegistroUiState(mensaje = "Usuario registrado correctamente")
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // Sin conexión o rechazado por el servidor: el formulario se conserva
+                    _uiState.update { it.copy(mensaje = mensajeDeError(e)) }
+                }
             }
         }
     }
