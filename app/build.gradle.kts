@@ -1,8 +1,16 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kover)
+}
+
+// Datos de la firma (llave académica del curso). Si el archivo no existe, el proyecto igual compila.
+val keystoreProperties = Properties().apply {
+    val archivo = rootProject.file("keystore.properties")
+    if (archivo.exists()) archivo.inputStream().use { load(it) }
 }
 
 android {
@@ -21,8 +29,22 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystoreProperties.isNotEmpty()) {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (keystoreProperties.isNotEmpty()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             optimization {
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
@@ -36,6 +58,22 @@ android {
     buildFeatures {
         compose = true
     }
+}
+
+// Exporta el APK release firmado con un nombre legible: HuertoEscolar-v1.0-build1.apk
+val nombreApp = "HuertoEscolar"
+val versionApp = android.defaultConfig.versionName ?: "1.0"
+val buildApp = android.defaultConfig.versionCode ?: 1
+
+tasks.register<Copy>("exportarApkRelease") {
+    val nombreFinal = "$nombreApp-v$versionApp-build$buildApp.apk"
+    dependsOn("assembleRelease")
+    from(layout.buildDirectory.dir("outputs/apk/release")) {
+        include("app-release.apk")
+        rename("app-release.apk", nombreFinal)
+    }
+    // Carpeta en la raíz del proyecto (no dentro de build/) para que el APK quede en el repositorio
+    into(rootProject.layout.projectDirectory.dir("apk-firmada"))
 }
 
 dependencies {
