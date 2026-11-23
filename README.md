@@ -14,7 +14,7 @@ Los sectores y cultivos se leen y escriben en un microservicio propio hecho con 
 ## Repositorios
 
 - Aplicación Android (este repositorio): https://github.com/m4x1fr4nc1sco8/HuertoEscolar
-- Microservicio Spring Boot: https://github.com/m4x1fr4nc1sco8/HuertoBackend (README con la lista de endpoints)
+- Microservicio Spring Boot: https://github.com/m4x1fr4nc1sco8/HuertoBackend (README con la lista completa de endpoints)
 
 ## Funcionalidades implementadas
 
@@ -41,6 +41,58 @@ Los sectores y cultivos se leen y escriben en un microservicio propio hecho con 
 
 1. **Cámara nativa:** captura directa de fotografías para evidencias y fotos referenciales con `ActivityResultContracts.TakePicture`.
 2. **Galería / selector visual:** selección de imágenes desde el almacenamiento del dispositivo con `ActivityResultContracts.PickVisualMedia`.
+
+## Endpoints utilizados
+
+### API externa: Open-Meteo (clima)
+
+API pública y gratuita, sin clave: https://open-meteo.com
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `v1/forecast` | Clima actual y pronóstico de 3 días para las coordenadas de San Bernardo |
+
+Parámetros que envía la app (definidos en `ClimaApi.kt`):
+
+| Parámetro | Valor |
+|-----------|-------|
+| `latitude`, `longitude` | Coordenadas de San Bernardo |
+| `current` | `temperature_2m, relative_humidity_2m, wind_speed_10m, weather_code` |
+| `daily` | `weather_code, temperature_2m_max, temperature_2m_min, precipitation_probability_max` |
+| `timezone` | `America/Santiago` |
+| `forecast_days` | `3` |
+
+La respuesta se muestra en la interfaz con temperatura, humedad, viento y el pronóstico de los próximos días.
+
+### Microservicio propio: huerto-api (Spring Boot)
+
+URL base desde el emulador: `http://10.0.2.2:8080/`. Documentación interactiva en Swagger: http://localhost:8080/swagger-ui.html
+
+**Sectores**
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/sectores` | Listar sectores |
+| GET | `/sectores/{id}` | Obtener un sector |
+| POST | `/sectores` | Crear un sector (409 si el código ya existe) |
+| PUT | `/sectores/{id}` | Actualizar un sector |
+| DELETE | `/sectores/{id}` | Eliminar un sector (409 si tiene cultivos asociados) |
+
+**Cultivos**
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/cultivos` | Listar cultivos (filtros opcionales: `estudianteId`, `sectorId`) |
+| GET | `/cultivos/{id}` | Obtener un cultivo |
+| POST | `/cultivos` | Crear un cultivo |
+| PUT | `/cultivos/{id}` | Actualizar un cultivo |
+| DELETE | `/cultivos/{id}` | Eliminar un cultivo |
+| PATCH | `/cultivos/{id}/estado` | Cambiar el estado del cultivo |
+| POST | `/cultivos/{id}/tarea/enviar` | Enviar la tarea con foto y comentario |
+| POST | `/cultivos/{id}/tarea/validar` | Validar la tarea (administrador) |
+| POST | `/cultivos/{id}/tarea/rechazar` | Rechazar la tarea con un motivo (administrador) |
+
+La lista completa, con los usuarios y los códigos de respuesta, está en el README del microservicio: https://github.com/m4x1fr4nc1sco8/HuertoBackend
 
 ## Arquitectura y tecnologías
 
@@ -80,7 +132,7 @@ cl.duoc.huertoescolar/
 
 1. Inicia **MySQL** desde XAMPP.
 2. Importa `database/huerto_escolar.sql` del repositorio HuertoBackend en phpMyAdmin.
-3. Ejecuta el microservicio (`.\mvnw spring-boot:run`, o `HuertoApiApplication` desde IntelliJ IDEA).
+3. Ejecuta el microservicio (`.\mvnw spring-boot:run`, o `HuertoApiApplication` desde IntelliJ IDEA con JDK 25).
 4. Comprueba que Swagger abre en http://localhost:8080/swagger-ui.html
 
 Desde el emulador, la app accede al backend en `http://10.0.2.2:8080/`.
@@ -98,25 +150,47 @@ Desde el emulador, la app accede al backend en `http://10.0.2.2:8080/`.
 | Administrador | admin@huerto.cl | huerto1234 |
 | Estudiante | estudiante@huerto.cl | huerto1234 |
 
-## APK firmado
+## APK firmado y llave (.jks)
 
-El APK firmado con keystore (`.jks`) está en la carpeta `apk-firmada/`:
+El APK firmado está en la carpeta `apk-firmada/`:
 
 - `apk-firmada/HuertoEscolar-v1.0-build1.apk`
 
-Instalación en el emulador o en un dispositivo conectado:
+La llave y su configuración están en la raíz del repositorio:
+
+- `release-key.jks`: llave de firma (alias `huertoescolar-release`).
+- `keystore.properties`: ruta, alias y contraseñas de la llave.
+
+El `.jks` y `keystore.properties` se incluyen en el repositorio solo para la evaluación académica (llave de uso exclusivo del curso).
+
+### Configuración técnica de la firma
+
+- En `app/build.gradle.kts`, el bloque `signingConfigs` lee `keystore.properties` y el tipo de compilación `release` aplica esa firma.
+- La tarea `exportarApkRelease` compila el APK release firmado y lo copia a `apk-firmada/` con el nombre `HuertoEscolar-v1.0-build1.apk`:
 
 ```powershell
-adb install apk-firmada\HuertoEscolar-v1.0-build1.apk
+.\gradlew exportarApkRelease
 ```
 
-Verificación de la firma:
+### Captura del APK firmado y .jks
+
+Verificación de la firma con `apksigner` (resultado `Verifies`, esquema v2 en `true`, firmante `CN=Maximiliano Araos`):
 
 ```powershell
 apksigner verify --verbose --print-certs apk-firmada\HuertoEscolar-v1.0-build1.apk
 ```
 
-El archivo `.jks` y `keystore.properties` no se incluyen en el repositorio por seguridad.
+![Verificación del APK firmado con apksigner](docs/apk-firmado.png)
+
+Archivo `release-key.jks` y `keystore.properties` en la raíz del proyecto:
+
+![Llave release-key.jks en el proyecto](docs/llave-jks.png)
+
+### Instalación
+
+```powershell
+adb install apk-firmada\HuertoEscolar-v1.0-build1.apk
+```
 
 Si ya había una versión instalada con otra firma (por ejemplo la de debug), primero se desinstala con `adb uninstall cl.duoc.huertoescolar`.
 
@@ -131,5 +205,5 @@ Las pruebas cubren la lógica de ViewModels, repositorios y validaciones. Para e
 
 El informe HTML queda en `app/build/reports/kover/htmlDebug/index.html`.
 
-- **Pruebas:** 294 en verde (completar si cambió la cifra)
-- **Cobertura de la lógica:** superior al 98 % (completar con la cifra del último informe)
+- **Pruebas:** 294 en verde
+- **Cobertura de la lógica:** superior al 98 %
